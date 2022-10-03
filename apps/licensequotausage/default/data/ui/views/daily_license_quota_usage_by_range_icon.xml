@@ -1,0 +1,40 @@
+<form script="table_icons_rangemap.js" stylesheet="table_decorations.css" version="1.1">
+  <label>Daily License Quota Usage By Range Icon</label>
+  <row>
+    <panel>
+      <input type="text" token="lmax" searchWhenChanged="true">
+        <label>Low - Maximum Range Value - GB's</label>
+        <initialValue>1000</initialValue>
+      </input>
+      <input type="text" token="emin" searchWhenChanged="true">
+        <label>Elevated - Minimum Range Value - GB's</label>
+        <initialValue>1001</initialValue>
+      </input>
+      <input type="text" token="emax" searchWhenChanged="true">
+        <label>Elevated - Maximum Range Value - GB's</label>
+        <initialValue>2000</initialValue>
+      </input>
+      <input type="text" token="smin" searchWhenChanged="true">
+        <label>Severe - Minimum Range Value - GB's</label>
+        <initialValue>2001</initialValue>
+      </input>
+      <input type="text" token="smax" searchWhenChanged="true">
+        <label>Severe - Maximum Range Value - GB's</label>
+        <initialValue>3000</initialValue>
+      </input>
+      <table id="table1">
+        <title>Daily License Quota Used By Icon Level - Low, Elevated, Severe and Over - Customizable Input Ranges - Last 7 Days</title>
+        <search>
+          <query>index=_internal source=*license_usage.log type=Usage pool=* | rename _time as Date | eval Date=strftime(Date, "%m-%d-%y") | stats sum(b) as ub by Date | eval ub=round(ub/1024/1024/1024) | rangemap field=ub low=0-$lmax$ elevated=$emin$-$emax$ severe=$smin$-$smax$ default=over | fields Date range ub | rename ub as "Daily License Quota Used - GB's" | sort -Date</query>
+          <earliest>-6d@d</earliest>
+          <latest>now</latest>
+        </search>
+        <option name="drilldown">cell</option>
+        <option name="wrap">true</option>
+        <option name="rowNumbers">true</option>
+        <option name="dataOverlayMode">none</option>
+        <option name="count">35</option>
+      </table>
+    </panel>
+  </row>
+</form>

@@ -37,3 +37,8 @@ modtime = 1662479893.413047000
 owner = nobody
 version = 9.0.1
 modtime = 1662479945.430331000
+
+[props/broken_license-too_small]
+owner = admin
+version = 9.0.1
+modtime = 1664829152.531102000

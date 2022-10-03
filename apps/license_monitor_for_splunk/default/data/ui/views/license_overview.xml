@@ -1,0 +1,210 @@
+<dashboard version="1.1" theme="dark">
+  <label>License Overview</label>
+  <row>
+    <panel>
+      <html>
+         <style>
+           .dashboard-row .dashboard-panel h2 {
+             font-size: 30px !important;
+           }
+           
+           .dashboard-row .dashboard-panel p {
+             font-size: 20px !important;
+             
+           }
+           
+           .dashboard-row .dashboard-panel h3 {
+             font-size: 20px !important;
+             
+           }
+         </style>
+         <br/>
+         <br/>
+         <br/>
+            <h2 style="color:#63ace5;" align="center"> Details of all installed Licenses </h2>
+         
+         <br/>
+       </html>
+    </panel>
+  </row>
+  <row>
+    <panel>
+      <title></title>
+      <table>
+        <search>
+          <query>| `operational_license_master_connection` "/services/licenser/licenses"
+| eval creation_time=strftime(creation_time,"%d-%m-%Y"), days_until_expiration=round((expiration_time-now())/86400) , expiration=strftime(expiration_time,"%d-%m-%Y") ,quota = ('quota'/1024/1024/1024), Volume = quota+" GB", is_unlimited =if('is_unlimited'==0,"no","yes")
+| fields  creation_time days_until_expiration expiration expiration_time Volume stack_id status subgroup_id type window_period max_violations label is_unlimited group_id features eai:acl.perms.write eai:acl.perms.read quota
+| eval renewal_period = case(days_until_expiration&lt;14, "critical", days_until_expiration&lt;30, "warning", 1=1, "Ok")
+| eval quota1 = case(quota&gt;1000, quota/1024) , quota1 = quota1+" TB"
+| eval quota2 = case(quota&lt;1, quota*1024) , quota2 = quota2+" MB"
+| eval Volume = coalesce(quota1,quota2,Volume)
+| fields group_id label Volume creation_time expiration renewal_period days_until_expiration is_unlimited   
+| rename creation_time AS "Purchase", expiration AS "Expiration", renewal_period AS "Renewal", days_until_expiration AS "Remaining Days", is_unlimited AS Unlimited,  group_id AS "License Type" , features AS "Available Features" , label AS License</query>
+          <earliest>@w0</earliest>
+          <latest>now</latest>
+          <sampleRatio>1</sampleRatio>
+        </search>
+        <option name="count">20</option>
+        <option name="dataOverlayMode">none</option>
+        <option name="drilldown">cell</option>
+        <option name="percentagesRow">false</option>
+        <option name="refresh.display">progressbar</option>
+        <option name="rowNumbers">false</option>
+        <option name="totalsRow">false</option>
+        <option name="wrap">true</option>
+        <format type="number" field="quota">
+          <option name="precision">0</option>
+          <option name="unit">MB</option>
+        </format>
+        <format type="number" field="window_period">
+          <option name="precision">0</option>
+          <option name="unit">Days</option>
+        </format>
+        <format type="number" field="max_violations">
+          <option name="precision">0</option>
+          <option name="unit">per window</option>
+        </format>
+        <format type="color" field="days_until_expiration">
+          <colorPalette type="minMidMax" maxColor="#FFFFFF" minColor="#D6563C"></colorPalette>
+          <scale type="minMidMax"></scale>
+        </format>
+        <format type="color" field="Renewal">
+          <colorPalette type="map">{"warning":#F8BE34,"critical":#DC4E41,"Ok":#53A051}</colorPalette>
+        </format>
+      </table>
+    </panel>
+  </row>
+  <row>
+    <panel>
+      <html>
+         
+        
+         <br/>
+         <br/>
+            <h2 style="color:#63ace5;" align="center"> Additional Details  </h2>
+         
+         <br/>
+       </html>
+    </panel>
+  </row>
+  <row>
+    <panel>
+      <title></title>
+      <html>
+         
+        
+        
+         <br/>
+            <p style="color:#63ace5;" align="center"> All License Slaves </p>
+         <br/>
+         
+       </html>
+      <table>
+        <search>
+          <query>| `operational_license_master_connection` "/services/licenser/slaves" 
+          | table label warning_count active_pool_ids
+          | rename label AS "Splunk Server",  warning_count AS Warnings,  active_pool_ids AS "Active Pool ID"</query>
+          <earliest>0</earliest>
+          <latest></latest>
+          <sampleRatio>1</sampleRatio>
+        </search>
+        <option name="count">20</option>
+        <option name="dataOverlayMode">none</option>
+        <option name="drilldown">cell</option>
+        <option name="percentagesRow">false</option>
+        <option name="refresh.display">progressbar</option>
+        <option name="rowNumbers">false</option>
+        <option name="totalsRow">false</option>
+        <option name="wrap">true</option>
+        <format type="number" field="quota">
+          <option name="precision">0</option>
+          <option name="unit">MB</option>
+        </format>
+        <format type="number" field="window_period">
+          <option name="precision">0</option>
+          <option name="unit">Days</option>
+        </format>
+        <format type="number" field="max_violations">
+          <option name="precision">0</option>
+          <option name="unit">per Window</option>
+        </format>
+        <format type="color" field="days_until_expiration">
+          <colorPalette type="minMidMax" maxColor="#FFFFFF" minColor="#D6563C"></colorPalette>
+          <scale type="minMidMax"></scale>
+        </format>
+      </table>
+    </panel>
+    <panel>
+      <title></title>
+      <html>
+         
+        
+        
+         <br/>
+            <p style="color:#63ace5;" align="center">License Pool Overview (00:00 until now)</p>
+         <br/>
+         
+       </html>
+      <table>
+        <search>
+          <query>| `operational_license_master_connection` "/services/licenser/pools" 
+| search stack_id=enterprise
+| eval effective_quota=effective_quota/1024/1024/1024, usage=round(used_bytes/1024/1024/1024,2) , percentage_used=round(((100/effective_quota)*usage),2)
+| eval quota0 = case(effective_quota&gt;0 AND effective_quota&lt;1000, effective_quota) , quota0 = quota0+" GB", usage0 = case(effective_quota&gt;0 AND effective_quota&lt;1000, usage+" GB")
+| eval quota1 = case(effective_quota&gt;1000, effective_quota/1024) , quota1 = quota1+" TB" , usage1 = case(effective_quota&gt;1000, usage+" TB" )              
+| eval quota2 = case(effective_quota&lt;1, effective_quota*1024) , quota2 = quota2+" MB", usage2 = case(effective_quota&lt;1, usage+" MB")
+| eval Volume = coalesce(quota1,quota2,quota0), usage = coalesce(usage2,usage0,usage1), percentage_used = percentage_used+" %"
+| fields description quota Volume usage  percentage_used
+| rename description AS "License Pool", quota AS Assignment, usage AS "Consumed amount",  percentage_used AS "Percentage rate"</query>
+          <earliest>0</earliest>
+          <latest></latest>
+          <sampleRatio>1</sampleRatio>
+        </search>
+        <option name="count">20</option>
+        <option name="dataOverlayMode">none</option>
+        <option name="drilldown">cell</option>
+        <option name="percentagesRow">false</option>
+        <option name="refresh.display">progressbar</option>
+        <option name="rowNumbers">false</option>
+        <option name="totalsRow">false</option>
+        <option name="wrap">true</option>
+        <format type="number" field="quota">
+          <option name="precision">0</option>
+          <option name="unit">MB</option>
+        </format>
+        <format type="number" field="window_period">
+          <option name="precision">0</option>
+          <option name="unit">Days</option>
+        </format>
+        <format type="number" field="max_violations">
+          <option name="precision">0</option>
+          <option name="unit">per Window</option>
+        </format>
+        <format type="color" field="days_until_expiration">
+          <colorPalette type="minMidMax" maxColor="#FFFFFF" minColor="#D6563C"></colorPalette>
+          <scale type="minMidMax"></scale>
+        </format>
+        <format type="number" field="effective_quota">
+          <option name="precision">0</option>
+          <option name="unit">MB</option>
+        </format>
+        <format type="number" field="used_bytes">
+          <option name="precision">0</option>
+          <option name="unit">MB</option>
+        </format>
+        <format type="number" field="percentage_used">
+          <option name="unit">%</option>
+        </format>
+        <format type="color" field="percentage_used">
+          <colorPalette type="list">[#A2CC3E,#F7BC38,#D93F3C]</colorPalette>
+          <scale type="threshold">70,85</scale>
+        </format>
+        <format type="color" field="Percentage rate">
+          <colorPalette type="list">[#53A051,#53A051,#F8BE34,#DC4E41]</colorPalette>
+          <scale type="threshold">0,70,90</scale>
+        </format>
+      </table>
+    </panel>
+  </row>
+</dashboard>

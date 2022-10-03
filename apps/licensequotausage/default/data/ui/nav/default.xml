@@ -1,0 +1,9 @@
+<nav search_view="search" color="#604E8F" version="1.1">
+  <view name="Setup" />
+  <view name="search" />
+  <view name="data_models" />
+  <view name="reports" />
+  <view name="alerts" />
+  <view name="dashboards" />
+  <view name="license_quota_usage_daily_and_monthly" default='true'/>
+</nav>

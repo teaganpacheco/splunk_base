@@ -1,0 +1,95 @@
+<dashboard version="1.1">
+  <row>
+   <html>
+     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+       <style type="text/css">
+        tab1 { padding-left: 2em; }
+        tab2 { padding-left: 4em; }
+        tab3 { padding-left: 6em; }
+       </style>		   
+     <center><img src="/static/app/licensequotausage/guage.jpeg"/></center> 
+     <p></p>
+     <table>
+      <tr>
+       <td>
+        <p><b>Must Be Installed On The License Server, or Search Head depending on where the _internal logs are sent, and specifically the license_usage.log file.  Best practice is to send the _internal logs to the indexer/s so in this case the app would be installed on the search head/s. </b></p> 
+        <p><b>To Include The "_internal" Index In The User's Role To View The License Data</b></p>
+        <font color="000099"><p><tab1>Select:</tab1></p>
+        <p><tab2><b>Settings</b> -> <b>Access Controls</b> -> <b>Roles</b> -> the specific user role under <b>Role Name</b></tab2></p>
+        <p><tab2>Add the <b>_internal</b> index to the <b>Selected Search Indexes</b> column under <b>Indexes</b></tab2></p>
+        <p><tab2><b>Save</b></tab2></p></font>	 
+       </td>
+      </tr>
+     </table>	
+     <table>
+      <tr>  
+       <td>
+        <p><b>To Set Up Included Reports As Alerts</b></p>
+        <font color="000099"><p><tab1>Open one or more of the following reports via <b>Open in Search</b>, or <b>Edit</b> -> <b>Clone</b> and edit the <b>GB's Used or TB's Used</b> value to suit your company needs for different alert levels:</tab1></p>
+        <p><tab2>High Daily License Quota Usage - Over 100 GB's</tab2></p>
+        <p><tab2>High Daily License Quota Usage - Over 250 GB's</tab2></p>
+        <p><tab2>High Daily License Quota Usage - Over 500 GB's</tab2></p>
+        <p><tab2>High Daily License Quota Usage - Over 750 GB's</tab2></p>
+        <p><tab2>High Daily License Quota Usage - Over 1 TB</tab2></p>
+        <p><tab2><b>Save As</b> -> <b>Alert</b></tab2></p></font>		 
+       </td>
+      </tr> 
+     </table>
+     <table>
+      <tr>  
+       <td>
+        <p><b>To Set Up Included Reports For Email Delivery</b></p>
+        <font color="000099"><p><tab1>Open one or more of the following reports via <b>Edit</b> -> <b>Edit Schedule</b> and select <b>Schedule Report</b>.  Schedule a cron job to run every day around 23:55 since the daily license usage data rolls over to 0 at midnight</tab1></p>
+        <p><tab2>Today's Host Usage</tab2></p>
+        <p><tab2>Today's Host Usage By Pool</tab2></p>
+        <p><tab2>Today's Index Usage</tab2></p>
+        <p><tab2>Today's Index Usage By Pool</tab2></p>
+        <p><tab2>Today's SourceType Usage</tab2></p>
+        <p><tab2>Today's SourceType Usage By Pool</tab2></p>
+        <p><tab2>Today's Usage By Index, SourceType &amp; Host</tab2></p>
+        <p><tab2>Today's Usage By Index, SourceType &amp; Host By Pool</tab2></p></font>  
+       </td>
+      </tr> 
+     </table>
+     <table>
+      <tr>  
+       <td>
+        <p><b>To Set Up Included Dashboards For Email Delivery</b></p>
+        <font color="000099"><p><tab1>Open the following dashboards via <b>Edit</b> -> <b>Schedule PDF Delivery</b> and select <b>Schedule PDF</b>.  Schedule a cron job to run every day around 23:55 since the daily license usage data rolls over to 0 at midnight</tab1></p>
+        <p><tab2>Today's License Usage - Bytes Used</tab2></p>
+        <p><tab2>Today's License Usage - Bytes Used By Pool</tab2></p></font>	
+       </td>
+      </tr> 
+     </table>
+     <table>
+      <tr>  
+       <td>
+        <p><b>To Change The Range Levels For The Included Reports</b></p>
+        <font color="000099"><p><tab1>Open the following reports via <b>Open in Search</b>, or <b>Edit</b> -> <b>Clone</b> and edit the <b>low</b>, <b>elevated</b> and <b>severe</b> values to suit your company needs for different alert levels (current settings as shown below are in GB's):</tab1></p>
+        <p><tab2>Daily License Quota Usage By Range - Last 7 Days</tab2></p>
+        <p><tab2>Daily License Quota Usage By Range - Last 30 Days</tab2></p>
+        <p><tab3>low=0-1000</tab3></p>
+        <p><tab3>elevated=1001-2000</tab3></p>
+        <p><tab3>severe=2001-3000</tab3></p>
+        <p><tab2><b>Save</b></tab2></p></font>		 
+       </td>
+      </tr> 
+     </table>
+     <table>
+      <tr>  
+       <td>
+        <p><b>To Change The Range Icon Levels For The Included Dashboard</b></p>
+         <font color="000099"><p><tab1>Open the following dashboard via <b>Edit</b> -> <b>Edit Source</b> and edit the following values to suit your company needs for different alert levels (current settings as shown below are in GB's):</tab1></p>
+        <p><tab2>Daily License Quota Usage By Range Icon</tab2></p>
+        <p><tab3>Low - Maximum Range Value - GB's=<initialValue>1000</initialValue></tab3></p>
+        <p><tab3>Elevated - Minimum Range Value - GB's=<initialValue>1001</initialValue></tab3></p>
+        <p><tab3>Elevated - Maximum Range Value - GB's=<initialValue>2000</initialValue></tab3></p>
+        <p><tab3>Severe - Minimum Range Value - GB's=<initialValue>2001</initialValue></tab3></p> 
+        <p><tab3>Severe - Maximum Range Value - GB's=<initialValue>3000</initialValue></tab3></p>
+        <p><tab2><b>Save</b></tab2></p></font>		 
+       </td>
+      </tr> 
+     </table>
+	</html> 
+   </row> 
+</dashboard>

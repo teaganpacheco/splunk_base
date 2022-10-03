@@ -1,0 +1,103 @@
+<dashboard version="1.1">
+  <label>Today's License Usage - Bytes Used By Pool</label>
+  <row>
+    <panel>
+      <table>
+        <title>Today's Usage By Index, SourceType, Source &amp; Client By Pool</title>
+        <search>
+          <query>index=_internal source=*license_usage.log type=Usage pool=* | stats sum(b) as b by pool idx st s h | eval "Bytes"=round(b) | addcoltotals Bytes labelfield=idx label="TOTAL BYTES:" | rename idx as Index st as SourceType s as Source h as Client pool as Pool | fields Pool Index SourceType Source Client "Bytes" | sort 0 - Bytes Pool | eval Bytes=tostring(Bytes,"commas")</query>
+          <earliest>@d</earliest>
+          <latest>now</latest>
+        </search>
+        <option name="wrap">true</option>
+        <option name="rowNumbers">false</option>
+        <option name="dataOverlayMode">none</option>
+        <option name="drilldown">cell</option>
+        <option name="count">50</option>
+        <format type="color" field="Index">
+          <colorPalette type="map">{"TOTAL BYTES:":#604E8F}</colorPalette>
+        </format>
+      </table>
+    </panel>
+  </row>
+  <row>
+    <panel>
+      <table>
+        <title>Today's Index Usage By Pool</title>
+        <search>
+          <query>index=_internal source=*license_usage.log type=Usage pool=* | stats sum(b) as b by pool idx | eval "Bytes"=round(b) | addcoltotals Bytes labelfield=idx label="TOTAL BYTES:" | rename idx as Index pool as Pool | fields Pool Index "Bytes" | sort 0 - Bytes Pool | eval Bytes=tostring(Bytes,"commas")</query>
+          <earliest>@d</earliest>
+          <latest>now</latest>
+        </search>
+        <option name="wrap">true</option>
+        <option name="rowNumbers">false</option>
+        <option name="dataOverlayMode">none</option>
+        <option name="drilldown">cell</option>
+        <option name="count">50</option>
+        <format type="color" field="Index">
+          <colorPalette type="map">{"TOTAL BYTES:":#604E8F}</colorPalette>
+        </format>
+      </table>
+    </panel>
+  </row>
+  <row>
+    <panel>
+      <table>
+        <title>Today's SourceType Usage By Pool</title>
+        <search>
+          <query>index=_internal source=*license_usage.log type=Usage pool=* | stats sum(b) as b by pool st | eval "Bytes"=round(b) | addcoltotals Bytes labelfield=st label="TOTAL BYTES:" | rename st as SourceType pool as Pool | fields Pool SourceType "Bytes" | sort 0 - Bytes Pool | eval Bytes=tostring(Bytes,"commas")</query>
+          <earliest>@d</earliest>
+          <latest>now</latest>
+        </search>
+        <option name="wrap">true</option>
+        <option name="rowNumbers">false</option>
+        <option name="dataOverlayMode">none</option>
+        <option name="drilldown">cell</option>
+        <option name="count">50</option>
+        <format type="color" field="SourceType">
+          <colorPalette type="map">{"TOTAL BYTES:":#604E8F}</colorPalette>
+        </format>
+      </table>
+    </panel>
+  </row>
+  <row>
+    <panel>
+      <table>
+        <title>Today's Source Usage By Pool</title>
+        <search>
+          <query>index=_internal source=*license_usage.log type=Usage pool=* | stats sum(b) as b by pool s | eval "Bytes"=round(b) | addcoltotals Bytes labelfield=s label="TOTAL BYTES:" | rename s as Source pool as Pool | fields Pool Source "Bytes" | sort 0 - Bytes Pool | eval Bytes=tostring(Bytes,"commas")</query>
+          <earliest>@d</earliest>
+          <latest>now</latest>
+        </search>
+        <option name="wrap">true</option>
+        <option name="rowNumbers">false</option>
+        <option name="dataOverlayMode">none</option>
+        <option name="drilldown">cell</option>
+        <option name="count">50</option>
+        <format type="color" field="Source">
+          <colorPalette type="map">{"TOTAL BYTES:":#604E8F}</colorPalette>
+        </format>
+      </table>
+    </panel>
+  </row>
+  <row>
+    <panel>
+      <table>
+        <title>Today's Client Usage By Pool</title>
+        <search>
+          <query>index=_internal source=*license_usage.log type=Usage pool=* | stats sum(b) as b by pool h | eval "Bytes"=round(b) | addcoltotals Bytes labelfield=h label="TOTAL BYTES:" | rename h as Client pool as Pool | fields Pool Client "Bytes" | sort 0 - Bytes Pool | eval Bytes=tostring(Bytes,"commas")</query>
+          <earliest>@d</earliest>
+          <latest>now</latest>
+        </search>
+        <option name="wrap">true</option>
+        <option name="rowNumbers">false</option>
+        <option name="dataOverlayMode">none</option>
+        <option name="drilldown">cell</option>
+        <option name="count">100</option>
+        <format type="color" field="Client">
+          <colorPalette type="map">{"TOTAL BYTES:":#604E8F}</colorPalette>
+        </format>
+      </table>
+    </panel>
+  </row>
+</dashboard>

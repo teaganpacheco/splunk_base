@@ -1,0 +1,42 @@
+<dashboard version="1.1" theme="dark">
+  <label>About</label>
+  <row>
+    <panel>
+      <html>
+    
+    <div style="padding: 30px;text-align: justify;margin-left: auto;margin-right: auto; font-size: 14pt;width: 65%; float: left">
+      <p>
+            <b>bluecue</b> develops individual <b>digital strategies</b> to make processes, teamwork and value creation in companies fit for the future. In doing so, we optimize 3 essential <b>core elements of work</b>:</p>
+      <li>Digital communication channels and information exchange</li>
+      <li>Data processing and transparency of digital processes</li>
+      <li>Digital competencies in human resources</li>
+      <p/>
+      <p>Each individual core element in itself has a decisive significance, identifies and consistently exploits existing potential. The combination of all 3 elements creates a, new, sustainable and synergetic work system that provides an essential foundation for the overall success of your company in the digital age.</p>
+      <p>
+            <b>bluecue digital strategies</b>. Exceeding your expectations.</p>
+    </div>
+    
+
+    <div style="padding: 10px; float: right">
+    <p style="color: #888888;text-align: justify;margin-left: auto;margin-right: auto">
+      <br/>
+      <a href="https://www.bluecue.de" target="_blank">
+              <img src="/static/app/license_monitor_for_splunk/Logo_bluecue_2020_Claim_4c.png" alt="bluecue Logo" width="200"/>
+            </a>
+      <br/>
+      <div>
+              <b>bluecue consulting GmbH &amp; Co. KG</b>
+            </div>
+      <div>August – Schroeder – Straße 4</div>
+      <div>33602 Bielefeld</div>
+      <div>Web: <a href="https://www.bluecue.de" target="_blank">www.bluecue.de</a>
+            </div>
+      <div>Fon: +49 521 9227 9800</div>
+      <div>Mail: info[at]bluecue.de</div>
+      </p>
+    </div>
+              
+        </html>
+    </panel>
+  </row>
+</dashboard>

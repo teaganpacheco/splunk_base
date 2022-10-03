@@ -1,0 +1,11 @@
+<setup>
+	<block title="Configure This App" endpoint="admin/reload_license_stats" entity="quota">
+		<text>
+			This page sets up the App. Just click on Save and you're on your way..
+		</text>
+		<input field="license_quota">
+               		<label>License Quota</label>
+               		<type>text</type>
+          	</input>
+		</block>
+</setup>

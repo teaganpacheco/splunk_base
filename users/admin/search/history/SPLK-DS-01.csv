@@ -1,0 +1,46 @@
+sid,search,"splunk_server","_time","is_realtime",provenance,"api_et","api_lt","event_count","exec_time","result_count","scan_count","search_et","search_lt",status,"total_run_time","__mv_sid","__mv_search","__mv_splunk_server","__mv__time","__mv_is_realtime","__mv_provenance","__mv_api_et","__mv_api_lt","__mv_event_count","__mv_exec_time","__mv_result_count","__mv_scan_count","__mv_search_et","__mv_search_lt","__mv_status","__mv_total_run_time"
+"rt_md_1664825989.2","| metadata type=sourcetypes | search totalCount > 0","SPLK-DS-01","1664825989.096567",1,"UI:Search",,,0,1664825989,0,0,,,canceled,"8.072000000000001",,,,,,,,,,,,,,,,
+"1664825996.4","search index=_internal licensemanager","SPLK-DS-01","1664825996.191328",0,"UI:Search","1664737200.000000000","1664825996.000000000",1,1664825996,1,1,"1664737200.000000000","1664825996.000000000",completed,"0.201",,,,,,,,,,,,,,,,
+"rt_md_1664829245.10","| metadata type=sourcetypes | search totalCount > 0","SPLK-DS-01","1664829245.810297",1,"UI:Search",,,0,1664829245,0,0,,,canceled,"15.167",,,,,,,,,,,,,,,,
+"1664829260.15","search index=licensing sourcetype=splunk_license","SPLK-DS-01","1664829260.086075",0,"UI:Search","1664740800.000000000","1664829260.000000000",5,1664829260,5,5,"1664740800.000000000","1664829260.000000000",completed,"0.217",,,,,,,,,,,,,,,,
+"1664829287.17","search index=licensing sourcetype=splunk_license 
+| eval ler=""LicenseManager - Daily indexing volume limit exceeded."" | stats count(ler) BY host","SPLK-DS-01","1664829287.870504",0,"UI:Search","1664740800.000000000","1664829287.000000000",6,1664829287,1,6,"1664740800.000000000","1664829287.000000000",completed,"0.258",,,,,,,,,,,,,,,,
+"1664829305.18","search index=licensing sourcetype=splunk_license 
+| eval ler=""LicenseManager - Daily indexing volume limit exceeded."" 
+```| stats count(ler) BY host```","SPLK-DS-01","1664829305.695082",0,"UI:Search","1664740800.000000000","1664829305.000000000",6,1664829305,6,6,"1664740800.000000000","1664829305.000000000",completed,"0.25",,,,,,,,,,,,,,,,
+"1664829334.19","search index=licensing sourcetype=splunk_license 
+| eval ler=""LicenseManager - Daily indexing volume limit exceeded."" 
+```| stats count(ler) BY host```","SPLK-DS-01","1664829334.212078",0,"UI:Search","1664828434.000000000","1664829334.000000000",7,1664829334,7,7,"1664828434.000000000","1664829334.000000000",completed,"0.23800000000000002",,,,,,,,,,,,,,,,
+"1664829335.20","search index=licensing sourcetype=splunk_license 
+| eval ler=""LicenseManager - Daily indexing volume limit exceeded."" 
+```| stats count(ler) BY host```","SPLK-DS-01","1664829335.065970",0,"UI:Search","1664828435.000000000","1664829335.000000000",7,1664829335,7,7,"1664828435.000000000","1664829335.000000000",completed,"0.196",,,,,,,,,,,,,,,,
+"1664829350.21","search index=licensing sourcetype=splunk_license 
+| eval ler=""LicenseManager - Daily indexing volume limit exceeded."" 
+```| stats count(ler) BY host```","SPLK-DS-01","1664829350.033349",0,"UI:Search","1664828450.000000000","1664829350.000000000",7,1664829350,7,7,"1664828450.000000000","1664829350.000000000",completed,"0.194",,,,,,,,,,,,,,,,
+"1664829352.22","search index=licensing sourcetype=splunk_license 
+| eval ler=""LicenseManager - Daily indexing volume limit exceeded."" 
+```| stats count(ler) BY host```","SPLK-DS-01","1664829352.495650",0,"UI:Search","1664828452.000000000","1664829352.000000000",7,1664829352,7,7,"1664828452.000000000","1664829352.000000000",completed,"0.203",,,,,,,,,,,,,,,,
+"1664829363.23","search index=licensing sourcetype=splunk_license 
+| eval ler=""LicenseManager - Daily indexing volume limit exceeded."" 
+```| stats count(ler) BY host```","SPLK-DS-01","1664829363.980425",0,"UI:Search","1664828463.000000000","1664829363.000000000",7,1664829364,7,7,"1664828463.000000000","1664829363.000000000",completed,"0.198",,,,,,,,,,,,,,,,
+"1664829370.24","search index=licensing sourcetype=splunk_license 
+| eval ler=""LicenseManager - Daily indexing volume limit exceeded."" 
+```| stats count(ler) BY host```","SPLK-DS-01","1664829370.099901",0,"UI:Search","1664828470.000000000","1664829370.000000000",7,1664829370,7,7,"1664828470.000000000","1664829370.000000000",completed,"0.20800000000000002",,,,,,,,,,,,,,,,
+"1664829380.25","search index=licensing sourcetype=splunk_license 
+| eval ler=""LicenseManager - Daily indexing volume limit exceeded."" 
+```| stats count(ler) BY host```","SPLK-DS-01","1664829380.588618",0,"UI:Search","1664828480.000000000","1664829380.000000000",7,1664829380,7,7,"1664828480.000000000","1664829380.000000000",completed,"0.193",,,,,,,,,,,,,,,,
+"1664829382.26","search index=licensing sourcetype=splunk_license 
+| eval ler=""LicenseManager - Daily indexing volume limit exceeded."" 
+```| stats count(ler) BY host```","SPLK-DS-01","1664829382.899969",0,"UI:Search","1664828482.000000000","1664829382.000000000",7,1664829382,7,7,"1664828482.000000000","1664829382.000000000",completed,"0.198",,,,,,,,,,,,,,,,
+"1664829401.27","search index=licensing sourcetype=splunk_license 
+| eval ler=""LicenseManager - Daily indexing volume limit exceeded."" 
+```| stats count(ler) BY host```","SPLK-DS-01","1664829401.103987",0,"UI:Search","1664828501.000000000","1664829401.000000000",8,1664829401,8,8,"1664828501.000000000","1664829401.000000000",completed,"0.2",,,,,,,,,,,,,,,,
+"1664829402.28","search index=licensing sourcetype=splunk_license 
+| eval ler=""LicenseManager - Daily indexing volume limit exceeded."" 
+```| stats count(ler) BY host```","SPLK-DS-01","1664829402.416373",0,"UI:Search","1664828502.000000000","1664829402.000000000",8,1664829402,8,8,"1664828502.000000000","1664829402.000000000",completed,"0.202",,,,,,,,,,,,,,,,
+"1664829441.32","search index=licensing host=SPLK-DS-01 sourcetype=splunk_license 
+| eval ler=""LicenseManager - Daily indexing volume limit exceeded."" 
+| stats count(ler) BY host","SPLK-DS-01","1664829441.901451",0,"UI:Search","1664828541.000000000","1664829441.000000000",8,1664829441,1,8,"1664828541.000000000","1664829441.000000000",completed,"0.187",,,,,,,,,,,,,,,,
+"1664829456.33","search index=licensing host=SPLK-DS-01 sourcetype=splunk_license 
+| eval ler=""LicenseManager - Daily indexing volume limit exceeded."" 
+| stats count(ler)","SPLK-DS-01","1664829456.193886",0,"UI:Search","1664828556.000000000","1664829456.000000000",8,1664829456,1,8,"1664828556.000000000","1664829456.000000000",completed,"0.222",,,,,,,,,,,,,,,,

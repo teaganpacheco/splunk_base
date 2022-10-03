@@ -2,3 +2,13 @@
 owner = admin
 version = 9.0.1
 modtime = 1664384086.324103000
+
+[indexes/licensing]
+owner = admin
+version = 9.0.1
+modtime = 1664829077.937253000
+
+[props/splunk_license]
+owner = admin
+version = 9.0.1
+modtime = 1664829200.275489000

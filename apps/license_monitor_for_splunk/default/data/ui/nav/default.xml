@@ -1,0 +1,19 @@
+<nav search_view="search" color="#5CC05C">
+
+
+  <view name="license_overview" default='true' />
+  <view name="license_consumption_in_detail" />
+  <view name="license_estimated_usage" />
+  
+  <collection label="License Estimated Costs / Allocations">
+    <view name="license_estimated_cost_and_allocation_device" />
+    <view name="license_estimated_cost_and_allocation_index" />
+    <view name="license_estimated_cost_and_allocation_source" />
+    <view name="license_estimated_cost_and_allocation_sourcetype" />
+  </collection>
+
+
+  <view name="alerts" />
+  <view name="search" />
+  <view name="about" />
+</nav>

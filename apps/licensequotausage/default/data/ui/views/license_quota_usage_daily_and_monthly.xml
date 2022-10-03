@@ -1,0 +1,530 @@
+<form version="1.1">
+  <label>License Quota Usage</label>
+  <fieldset submitButton="false"></fieldset>
+  <row>
+    <panel>
+      <single>
+        <title>Today's License Usage In Bytes</title>
+        <search>
+          <query>index=_internal source=*license_usage.log type=Usage pool=* | stats sum(b) | rename poolsz as "Daily License Quota" sum(b) as "Daily License Quota Used"</query>
+          <earliest>@d</earliest>
+          <latest>now</latest>
+        </search>alhost/<option name="colorBy">value</option>
+        <option name="colorMode">block</option>
+        <option name="drilldown">all</option>
+        <option name="numberPrecision">0</option>
+        <option name="rangeColors">["0x604E8F","0x604E8F"]</option>
+        <option name="rangeValues">[0]</option>
+        <option name="showSparkline">1</option>
+        <option name="showTrendIndicator">1</option>
+        <option name="trendColorInterpretation">standard</option>
+        <option name="trendDisplayMode">absolute</option>
+        <option name="underLabel">BYTES</option>
+        <option name="unitPosition">after</option>
+        <option name="useColors">1</option>
+        <option name="useThousandSeparators">1</option>
+      </single>
+    </panel>
+  </row>
+  <row>
+    <panel>
+      <table>
+        <title>Pool Size With Today's Quota &amp; Percentage Used</title>
+        <search>
+          <query>index=_internal source=*license_usage.log type=Usage pool=* | stats sum(b) as ub by pool poolsz | eval pu=round(ub / poolsz * 100,2)  | eval poolszm=poolsz/1024/1024 | eval poolszg=round(poolsz/1024/1024/1024,3) | eval poolszt=round(poolsz/1024/1024/1024/1024,6) | eval umb=round(ub/1024/1024,3) | eval ugb=round(ub/1024/1024/1024,6) |  eval utb=round(ub/1024/1024/1024/1024,9) | eval poolsz=tostring(poolsz,"commas") | addcoltotals poolszm labelfield=poolsz label="TOTAL LICENSE SIZE - MB's:" | addcoltotals poolszg labelfield=poolszm label="TOTAL LICENSE SIZE - GB's:" | addcoltotals poolszt labelfield=poolszg label="TOTAL LICENSE SIZE - TB's:" | addcoltotals umb labelfield=poolszt label="TOTAL MB's USED:" | addcoltotals ugb labelfield=umb label="TOTAL GB's USED:" | addcoltotals utb labelfield=ugb label="TOTAL TB's USED:" | rename pool as "License Pool" poolsz as "Pool Size - Bytes" umb as "MB's Used" ugb as "GB's Used" utb as "TB's Used" pu as "% Used" poolszm as "Pool Size - MB's" poolszg as "Pool Size - GB's" poolszt as "Pool Size - TB's" | fields "License Pool" "Pool Size - Bytes" "Pool Size - MB's" "Pool Size - GB's" "Pool Size - TB's" "MB's Used" "GB's Used" "TB's Used" "% Used" | sort "License Pool"</query>
+          <earliest>@d</earliest>
+          <latest>now</latest>
+          <sampleRatio>1</sampleRatio>
+        </search>
+        <option name="count">20</option>
+        <option name="dataOverlayMode">none</option>
+        <option name="drilldown">cell</option>
+        <option name="percentagesRow">false</option>
+        <option name="rowNumbers">false</option>
+        <option name="totalsRow">false</option>
+        <option name="wrap">true</option>
+        <format type="color" field="Pool Size - Bytes">
+          <colorPalette type="map">{"TOTAL LICENSE SIZE - MB's:":#604E8F}</colorPalette>
+        </format>
+        <format type="color" field="Pool Size - MB's">
+          <colorPalette type="map">{"TOTAL LICENSE SIZE - GB's:":#604E8F}</colorPalette>
+        </format>
+        <format type="color" field="Pool Size - GB's">
+          <colorPalette type="map">{"TOTAL LICENSE SIZE - TB's:":#604E8F}</colorPalette>
+        </format>
+        <format type="color" field="Pool Size - TB's">
+          <colorPalette type="map">{"TOTAL MB's USED:":#604E8F}</colorPalette>
+        </format>
+        <format type="color" field="MB's Used">
+          <colorPalette type="map">{"TOTAL GB's USED:":#604E8F}</colorPalette>
+        </format>
+        <format type="color" field="GB's Used">
+          <colorPalette type="map">{"TOTAL TB's USED:":#604E8F}</colorPalette>
+        </format>
+      </table>
+    </panel>
+  </row>
+  <row>
+    <panel>
+      <input type="radio" searchWhenChanged="true" token="NumberOfDays">
+        <label>SELECT TIMESPAN:</label>
+        <choice value="0">Today</choice>
+        <choice value="6">Last 7 Days</choice>
+        <choice value="13">Last 14 Days</choice>
+        <choice value="29">Last 30 Days</choice>
+        <choice value="89">Last 90 Days</choice>
+        <default>6</default>
+        <initialValue>6</initialValue>
+      </input>
+      <chart>
+        <title>Daily License Quota Usage in TB's</title>
+        <search>
+          <query>index=_internal source=*license_usage.log type=Usage pool=* | eval _time=strftime(_time,"%m-%d-%y") | stats sum(b) as ub by _time | eval ub=round(ub/1024/1024/1024/1024,3) | eval _time=strptime(_time,"%m-%d-%y") | sort _time | eval _time=strftime(_time,"%m-%d-%y") | rename _time as Date ub as "Daily License Quota Used"</query>
+          <earliest>-$NumberOfDays$d@d</earliest>
+          <latest>now</latest>
+          <sampleRatio>1</sampleRatio>
+        </search>
+        <option name="charting.axisLabelsX.majorLabelStyle.overflowMode">ellipsisNone</option>
+        <option name="charting.axisLabelsX.majorLabelStyle.rotation">45</option>
+        <option name="charting.axisTitleX.visibility">visible</option>
+        <option name="charting.axisTitleY.text">TB's Used</option>
+        <option name="charting.axisTitleY.visibility">visible</option>
+        <option name="charting.axisTitleY2.visibility">visible</option>
+        <option name="charting.axisX.scale">linear</option>
+        <option name="charting.axisY.scale">linear</option>
+        <option name="charting.axisY2.enabled">0</option>
+        <option name="charting.axisY2.scale">inherit</option>
+        <option name="charting.chart">line</option>
+        <option name="charting.chart.bubbleMaximumSize">50</option>
+        <option name="charting.chart.bubbleMinimumSize">10</option>
+        <option name="charting.chart.bubbleSizeBy">area</option>
+        <option name="charting.chart.nullValueMode">gaps</option>
+        <option name="charting.chart.overlayFields">"Daily License Quota Used"</option>
+        <option name="charting.chart.showDataLabels">all</option>
+        <option name="charting.chart.sliceCollapsingThreshold">0.01</option>
+        <option name="charting.chart.stackMode">default</option>
+        <option name="charting.chart.style">shiny</option>
+        <option name="charting.drilldown">all</option>
+        <option name="charting.layout.splitSeries">0</option>
+        <option name="charting.layout.splitSeries.allowIndependentYRanges">0</option>
+        <option name="charting.legend.labelStyle.overflowMode">ellipsisMiddle</option>
+        <option name="charting.legend.placement">top</option>
+      </chart>
+    </panel>
+  </row>
+  <row>
+    <panel>
+      <chart>
+        <title>Today's Quota Usage By Pool in GB's With Quota Size</title>
+        <search>
+          <query>index=_internal source=*license_usage.log type=Usage pool=* | stats sum(b) as ub by pool poolsz | eval ub=round(ub/1024/1024/1024,6) | eval poolsz=round(poolsz/1024/1024/1024,3) | rename pool as Pool poolsz as "Quota Size - GB's" ub as "Today's Quota Used - GB's" | fields Pool "Quota Size - GB's" "Today's Quota Used - GB's" | sort Pool</query>
+          <earliest>@d</earliest>
+          <latest>now</latest>
+          <sampleRatio>1</sampleRatio>
+        </search>
+        <option name="charting.axisLabelsX.majorLabelStyle.overflowMode">ellipsisNone</option>
+        <option name="charting.axisLabelsX.majorLabelStyle.rotation">0</option>
+        <option name="charting.axisTitleX.visibility">visible</option>
+        <option name="charting.axisTitleY.text">GB's</option>
+        <option name="charting.axisTitleY.visibility">visible</option>
+        <option name="charting.axisTitleY2.visibility">visible</option>
+        <option name="charting.axisX.abbreviation">auto</option>
+        <option name="charting.axisX.scale">linear</option>
+        <option name="charting.axisY.abbreviation">auto</option>
+        <option name="charting.axisY.scale">linear</option>
+        <option name="charting.axisY2.abbreviation">auto</option>
+        <option name="charting.axisY2.enabled">0</option>
+        <option name="charting.axisY2.scale">inherit</option>
+        <option name="charting.chart">bar</option>
+        <option name="charting.chart.bubbleMaximumSize">50</option>
+        <option name="charting.chart.bubbleMinimumSize">10</option>
+        <option name="charting.chart.bubbleSizeBy">area</option>
+        <option name="charting.chart.nullValueMode">gaps</option>
+        <option name="charting.chart.showDataLabels">none</option>
+        <option name="charting.chart.sliceCollapsingThreshold">.01</option>
+        <option name="charting.chart.stackMode">default</option>
+        <option name="charting.chart.style">shiny</option>
+        <option name="charting.drilldown">all</option>
+        <option name="charting.layout.splitSeries">0</option>
+        <option name="charting.layout.splitSeries.allowIndependentYRanges">0</option>
+        <option name="charting.legend.labelStyle.overflowMode">ellipsisMiddle</option>
+        <option name="charting.legend.mode">standard</option>
+        <option name="charting.legend.placement">top</option>
+        <option name="charting.lineWidth">2</option>
+        <option name="trellis.enabled">0</option>
+        <option name="trellis.scales.shared">1</option>
+        <option name="trellis.size">medium</option>
+      </chart>
+    </panel>
+  </row>
+  <row>
+    <panel>
+      <chart>
+        <title>Today's Percentage Usage By Pool</title>
+        <search>
+          <query>index=_internal source=*license_usage.log type=Usage pool=* | stats sum(b) as ub by pool poolsz | eval pu=round(ub / poolsz * 100,2) | rename pool as Pool ub as "Used - Bytes" pu as "Today's Percentage Used" | fields Pool "Today's Percentage Used" | sort Pool</query>
+          <earliest>@d</earliest>
+          <latest>now</latest>
+        </search>
+        <option name="charting.axisLabelsX.majorLabelStyle.overflowMode">ellipsisNone</option>
+        <option name="charting.axisLabelsX.majorLabelStyle.rotation">0</option>
+        <option name="charting.axisTitleX.visibility">visible</option>
+        <option name="charting.axisTitleY.text">% Used</option>
+        <option name="charting.axisTitleY.visibility">visible</option>
+        <option name="charting.axisTitleY2.visibility">visible</option>
+        <option name="charting.axisX.abbreviation">auto</option>
+        <option name="charting.axisX.scale">linear</option>
+        <option name="charting.axisY.abbreviation">auto</option>
+        <option name="charting.axisY.scale">linear</option>
+        <option name="charting.axisY2.abbreviation">auto</option>
+        <option name="charting.axisY2.enabled">0</option>
+        <option name="charting.axisY2.scale">inherit</option>
+        <option name="charting.chart">bar</option>
+        <option name="charting.chart.bubbleMaximumSize">50</option>
+        <option name="charting.chart.bubbleMinimumSize">10</option>
+        <option name="charting.chart.bubbleSizeBy">area</option>
+        <option name="charting.chart.nullValueMode">gaps</option>
+        <option name="charting.chart.showDataLabels">all</option>
+        <option name="charting.chart.sliceCollapsingThreshold">1</option>
+        <option name="charting.chart.stackMode">default</option>
+        <option name="charting.chart.style">shiny</option>
+        <option name="charting.drilldown">all</option>
+        <option name="charting.layout.splitSeries">0</option>
+        <option name="charting.layout.splitSeries.allowIndependentYRanges">0</option>
+        <option name="charting.legend.labelStyle.overflowMode">ellipsisMiddle</option>
+        <option name="charting.legend.mode">standard</option>
+        <option name="charting.legend.placement">top</option>
+        <option name="charting.lineWidth">2</option>
+        <option name="trellis.enabled">0</option>
+        <option name="trellis.scales.shared">1</option>
+        <option name="trellis.size">medium</option>
+      </chart>
+    </panel>
+  </row>
+  <row>
+    <panel>
+      <chart>
+        <title>Index Usage - Today - Top 20</title>
+        <search>
+          <query>index=_internal source=*license_usage.log type=Usage pool=* | stats sum(b) as b by idx | eval MB's=round(b/1024/1024,2) | rename idx as Index MB's as "MB's Used" | fields Index "MB's Used" | sort 20 - "MB's Used"</query>
+          <earliest>@d</earliest>
+          <latest>now</latest>
+        </search>
+        <option name="charting.axisLabelsX.majorLabelStyle.overflowMode">ellipsisNone</option>
+        <option name="charting.axisLabelsX.majorLabelStyle.rotation">0</option>
+        <option name="charting.axisTitleX.visibility">visible</option>
+        <option name="charting.axisTitleY.visibility">visible</option>
+        <option name="charting.axisTitleY2.visibility">visible</option>
+        <option name="charting.axisX.scale">linear</option>
+        <option name="charting.axisY.scale">linear</option>
+        <option name="charting.axisY2.enabled">0</option>
+        <option name="charting.axisY2.scale">inherit</option>
+        <option name="charting.chart">pie</option>
+        <option name="charting.chart.bubbleMaximumSize">50</option>
+        <option name="charting.chart.bubbleMinimumSize">10</option>
+        <option name="charting.chart.bubbleSizeBy">area</option>
+        <option name="charting.chart.nullValueMode">gaps</option>
+        <option name="charting.chart.showDataLabels">none</option>
+        <option name="charting.chart.sliceCollapsingThreshold">0.01</option>
+        <option name="charting.chart.stackMode">default</option>
+        <option name="charting.chart.style">shiny</option>
+        <option name="charting.drilldown">all</option>
+        <option name="charting.layout.splitSeries">0</option>
+        <option name="charting.layout.splitSeries.allowIndependentYRanges">0</option>
+        <option name="charting.legend.labelStyle.overflowMode">ellipsisMiddle</option>
+        <option name="charting.legend.placement">right</option>
+      </chart>
+    </panel>
+    <panel>
+      <table>
+        <title>Index Usage - Today</title>
+        <search>
+          <query>index=_internal source=*license_usage.log type=Usage pool=* | stats sum(b) as b by pool idx | eval MBs=round(b/1024/1024,2) | addcoltotals MBs labelfield=idx label="TOTAL MB's USED:" | rename idx as Index pool as "License Pool" MBs as "MB's Used" | fields "License Pool" Index "MB's Used" | sort - "MB's Used"</query>
+          <earliest>@d</earliest>
+          <latest>now</latest>
+          <sampleRatio>1</sampleRatio>
+        </search>
+        <option name="count">20</option>
+        <option name="dataOverlayMode">none</option>
+        <option name="drilldown">cell</option>
+        <option name="percentagesRow">false</option>
+        <option name="rowNumbers">false</option>
+        <option name="totalsRow">false</option>
+        <option name="wrap">true</option>
+        <format type="color" field="Index">
+          <colorPalette type="map">{"TOTAL MB's USED:":#604E8F}</colorPalette>
+        </format>
+      </table>
+    </panel>
+  </row>
+  <row>
+    <panel>
+      <chart>
+        <title>Index Usage - Last 7 Days</title>
+        <search>
+          <query>index=_internal source=*license_usage.log type=Usage pool=* | eval MBs=round(b/1024/1024,2) | timechart sum(MBs) by idx</query>
+          <earliest>-6d@d</earliest>
+          <latest>now</latest>
+          <sampleRatio>1</sampleRatio>
+        </search>
+        <option name="charting.axisLabelsX.majorLabelStyle.overflowMode">ellipsisNone</option>
+        <option name="charting.axisLabelsX.majorLabelStyle.rotation">45</option>
+        <option name="charting.axisTitleX.text">Date</option>
+        <option name="charting.axisTitleX.visibility">visible</option>
+        <option name="charting.axisTitleY.text">MB's</option>
+        <option name="charting.axisTitleY.visibility">visible</option>
+        <option name="charting.axisTitleY2.visibility">visible</option>
+        <option name="charting.axisX.scale">linear</option>
+        <option name="charting.axisY.scale">linear</option>
+        <option name="charting.axisY2.enabled">0</option>
+        <option name="charting.axisY2.scale">inherit</option>
+        <option name="charting.chart">area</option>
+        <option name="charting.chart.bubbleMaximumSize">50</option>
+        <option name="charting.chart.bubbleMinimumSize">10</option>
+        <option name="charting.chart.bubbleSizeBy">area</option>
+        <option name="charting.chart.nullValueMode">gaps</option>
+        <option name="charting.chart.showDataLabels">none</option>
+        <option name="charting.chart.sliceCollapsingThreshold">0.01</option>
+        <option name="charting.chart.stackMode">default</option>
+        <option name="charting.chart.style">shiny</option>
+        <option name="charting.drilldown">all</option>
+        <option name="charting.layout.splitSeries">0</option>
+        <option name="charting.layout.splitSeries.allowIndependentYRanges">0</option>
+        <option name="charting.legend.labelStyle.overflowMode">ellipsisMiddle</option>
+        <option name="charting.legend.placement">right</option>
+      </chart>
+    </panel>
+  </row>
+  <row>
+    <panel>
+      <chart>
+        <title>SourceType Usage - Today - Top 20</title>
+        <search>
+          <query>index=_internal source=*license_usage.log type=Usage pool=* | stats sum(b) as b by st | eval MB's=round(b/1024/1024,2) | rename st as SourceType MB's as "MB's Used" | fields SourceType "MB's Used" | sort 20 - "MB's Used"</query>
+          <earliest>@d</earliest>
+          <latest>now</latest>
+        </search>
+        <option name="charting.axisLabelsX.majorLabelStyle.overflowMode">ellipsisNone</option>
+        <option name="charting.axisLabelsX.majorLabelStyle.rotation">0</option>
+        <option name="charting.axisTitleX.visibility">visible</option>
+        <option name="charting.axisTitleY.visibility">visible</option>
+        <option name="charting.axisTitleY2.visibility">visible</option>
+        <option name="charting.axisX.scale">linear</option>
+        <option name="charting.axisY.scale">linear</option>
+        <option name="charting.axisY2.enabled">0</option>
+        <option name="charting.axisY2.scale">inherit</option>
+        <option name="charting.chart">pie</option>
+        <option name="charting.chart.bubbleMaximumSize">50</option>
+        <option name="charting.chart.bubbleMinimumSize">10</option>
+        <option name="charting.chart.bubbleSizeBy">area</option>
+        <option name="charting.chart.nullValueMode">gaps</option>
+        <option name="charting.chart.showDataLabels">none</option>
+        <option name="charting.chart.sliceCollapsingThreshold">0.01</option>
+        <option name="charting.chart.stackMode">default</option>
+        <option name="charting.chart.style">shiny</option>
+        <option name="charting.drilldown">all</option>
+        <option name="charting.layout.splitSeries">0</option>
+        <option name="charting.layout.splitSeries.allowIndependentYRanges">0</option>
+        <option name="charting.legend.labelStyle.overflowMode">ellipsisMiddle</option>
+        <option name="charting.legend.placement">right</option>
+      </chart>
+    </panel>
+    <panel>
+      <table>
+        <title>SourceType Usage - Today</title>
+        <search>
+          <query>index=_internal source=*license_usage.log type=Usage pool=* | stats sum(b) as b by pool st idx | eval MBs=round(b/1024/1024,2) | addcoltotals MBs labelfield=st label="TOTAL MB's USED:" | rename pool as "License Pool" st as SourceType idx as Index MBs as "MB's Used" | fields "License Pool" SourceType Index "MB's Used" | sort - "MB's Used"</query>
+          <earliest>@d</earliest>
+          <latest>now</latest>
+          <sampleRatio>1</sampleRatio>
+        </search>
+        <option name="count">20</option>
+        <option name="dataOverlayMode">none</option>
+        <option name="drilldown">cell</option>
+        <option name="percentagesRow">false</option>
+        <option name="rowNumbers">false</option>
+        <option name="totalsRow">false</option>
+        <option name="wrap">true</option>
+        <format type="color" field="SourceType">
+          <colorPalette type="map">{"TOTAL MB's USED:":#604E8F}</colorPalette>
+        </format>
+      </table>
+    </panel>
+  </row>
+  <row>
+    <panel>
+      <chart>
+        <title>SourceType Usage - Last 7 Days</title>
+        <search>
+          <query>index=_internal source=*license_usage.log type=Usage pool=* | eval MBs=round(b/1024/1024,2) | timechart sum(MBs) by st</query>/run/media/draesner/USB30FD<earliest>-6d@d</earliest>
+          <latest>now</latest>
+          <sampleRatio>1</sampleRatio>
+        </search>
+        <option name="charting.axisLabelsX.majorLabelStyle.overflowMode">ellipsisNone</option>
+        <option name="charting.axisLabelsX.majorLabelStyle.rotation">45</option>
+        <option name="charting.axisTitleX.text">Date</option>
+        <option name="charting.axisTitleX.visibility">visible</option>
+        <option name="charting.axisTitleY.text">MB's</option>
+        <option name="charting.axisTitleY.visibility">visible</option>
+        <option name="charting.axisTitleY2.visibility">visible</option>
+        <option name="charting.axisX.scale">linear</option>
+        <option name="charting.axisY.scale">linear</option>
+        <option name="charting.axisY2.enabled">0</option>
+        <option name="charting.axisY2.scale">inherit</option>
+        <option name="charting.chart">area</option>
+        <option name="charting.chart.bubbleMaximumSize">50</option>
+        <option name="charting.chart.bubbleMinimumSize">10</option>
+        <option name="charting.chart.bubbleSizeBy">area</option>
+        <option name="charting.chart.nullValueMode">gaps</option>
+        <option name="charting.chart.showDataLabels">none</option>
+        <option name="charting.chart.sliceCollapsingThreshold">0.01</option>
+        <option name="charting.chart.stackMode">default</option>
+        <option name="charting.chart.style">shiny</option>
+        <option name="charting.drilldown">all</option>
+        <option name="charting.layout.splitSeries">0</option>
+        <option name="charting.layout.splitSeries.allowIndependentYRanges">0</option>
+        <option name="charting.legend.labelStyle.overflowMode">ellipsisMiddle</option>
+        <option name="charting.legend.placement">right</option>
+      </chart>
+    </panel>
+  </row>
+  <row>
+    <panel>
+      <table>
+        <title>SourceType Usage With Index &amp; Source - Today</title>
+        <search>
+          <query>index=_internal source=*license_usage.log type=Usage pool=* | stats sum(b) as b by pool st idx s | eval MBs=round(b/1024/1024,2) | addcoltotals MBs labelfield=st label="TOTAL MB's USED:" | rename pool as "License Pool" st as SourceType idx as Index s as Source MBs as "MB's Used" | fields "License Pool" SourceType Index Source "MB's Used" | sort - "MB's Used"</query>
+          <earliest>@d</earliest>
+          <latest>now</latest>
+          <sampleRatio>1</sampleRatio>
+        </search>
+        <option name="count">20</option>
+        <option name="dataOverlayMode">none</option>
+        <option name="drilldown">cell</option>
+        <option name="percentagesRow">false</option>
+        <option name="rowNumbers">false</option>
+        <option name="totalsRow">false</option>
+        <option name="wrap">true</option>
+        <format type="color" field="SourceType">
+          <colorPalette type="map">{"TOTAL MB's USED:":#604E8F}</colorPalette>
+        </format>
+      </table>
+    </panel>
+  </row>
+  <row>
+    <panel>
+      <chart>
+        <title>Source Usage - Today - Top 20</title>
+        <search>
+          <query>index=_internal source=*license_usage.log type=Usage pool=* | stats sum(b) as b by s | eval MB's=round(b/1024/1024,2) | rename s as Source MB's as "MB's Used" | fields Source "MB's Used" | sort 20 - "MB's Used"</query>
+          <earliest>@d</earliest>
+          <latest>now</latest>
+        </search>
+        <option name="charting.axisLabelsX.majorLabelStyle.overflowMode">ellipsisNone</option>
+        <option name="charting.axisLabelsX.majorLabelStyle.rotation">0</option>
+        <option name="charting.axisTitleX.visibility">visible</option>
+        <option name="charting.axisTitleY.visibility">visible</option>
+        <option name="charting.axisTitleY2.visibility">visible</option>
+        <option name="charting.axisX.scale">linear</option>
+        <option name="charting.axisY.scale">linear</option>
+        <option name="charting.axisY2.enabled">0</option>
+        <option name="charting.axisY2.scale">inherit</option>
+        <option name="charting.chart">pie</option>
+        <option name="charting.chart.bubbleMaximumSize">50</option>
+        <option name="charting.chart.bubbleMinimumSize">10</option>
+        <option name="charting.chart.bubbleSizeBy">area</option>
+        <option name="charting.chart.nullValueMode">gaps</option>
+        <option name="charting.chart.showDataLabels">none</option>
+        <option name="charting.chart.sliceCollapsingThreshold">0.01</option>
+        <option name="charting.chart.stackMode">default</option>
+        <option name="charting.chart.style">shiny</option>
+        <option name="charting.drilldown">all</option>
+        <option name="charting.layout.splitSeries">0</option>
+        <option name="charting.layout.splitSeries.allowIndependentYRanges">0</option>
+        <option name="charting.legend.labelStyle.overflowMode">ellipsisMiddle</option>
+        <option name="charting.legend.placement">right</option>
+      </chart>
+    </panel>
+    <panel>
+      <table>
+        <title>Source Usage - Today</title>
+        <search>
+          <query>index=_internal source=*license_usage.log type=Usage pool=* | stats sum(b) as b by pool s idx | eval MBs=round(b/1024/1024,2) | addcoltotals MBs labelfield=s label="TOTAL MB's USED:" | rename pool as "License Pool" s as Source idx as Index MBs as "MB's Used" | fields "License Pool" Source Index "MB's Used" | sort - "MB's Used"</query>
+          <earliest>@d</earliest>
+          <latest>now</latest>
+          <sampleRatio>1</sampleRatio>
+        </search>
+        <option name="count">20</option>
+        <option name="dataOverlayMode">none</option>
+        <option name="drilldown">cell</option>
+        <option name="percentagesRow">false</option>
+        <option name="rowNumbers">false</option>
+        <option name="totalsRow">false</option>
+        <option name="wrap">true</option>
+        <format type="color" field="Source">
+          <colorPalette type="map">{"TOTAL MB's USED:":#604E8F}</colorPalette>
+        </format>
+      </table>
+    </panel>
+  </row>
+  <row>
+    <panel>
+      <chart>
+        <title>Source Usage - Last 7 Days</title>
+        <search>
+          <query>index=_internal source=*license_usage.log type=Usage pool=* | eval MBs=round(b/1024/1024,2) | timechart sum(MBs) by s</query>
+          <earliest>-6d@d</earliest>
+          <latest>now</latest>
+          <sampleRatio>1</sampleRatio>
+        </search>
+        <option name="charting.axisLabelsX.majorLabelStyle.overflowMode">ellipsisNone</option>
+        <option name="charting.axisLabelsX.majorLabelStyle.rotation">45</option>
+        <option name="charting.axisTitleX.text">Date</option>
+        <option name="charting.axisTitleX.visibility">visible</option>
+        <option name="charting.axisTitleY.text">MB's</option>
+        <option name="charting.axisTitleY.visibility">visible</option>
+        <option name="charting.axisTitleY2.visibility">visible</option>
+        <option name="charting.axisX.scale">linear</option>
+        <option name="charting.axisY.scale">linear</option>
+        <option name="charting.axisY2.enabled">0</option>
+        <option name="charting.axisY2.scale">inherit</option>
+        <option name="charting.chart">area</option>
+        <option name="charting.chart.bubbleMaximumSize">50</option>
+        <option name="charting.chart.bubbleMinimumSize">10</option>
+        <option name="charting.chart.bubbleSizeBy">area</option>
+        <option name="charting.chart.nullValueMode">gaps</option>
+        <option name="charting.chart.showDataLabels">none</option>
+        <option name="charting.chart.sliceCollapsingThreshold">0.01</option>
+        <option name="charting.chart.stackMode">default</option>
+        <option name="charting.chart.style">shiny</option>
+        <option name="charting.drilldown">all</option>
+        <option name="charting.layout.splitSeries">0</option>
+        <option name="charting.layout.splitSeries.allowIndependentYRanges">0</option>
+        <option name="charting.legend.labelStyle.overflowMode">ellipsisMiddle</option>
+        <option name="charting.legend.placement">right</option>
+      </chart>
+    </panel>
+  </row>
+  <row>
+    <panel>
+      <table>
+        <title>Client Usage - Today</title>
+        <search>
+          <query>index=_internal source=*license_usage.log type=Usage pool=* | stats sum(b) as b by pool h host splunk_server idx st s | eval MBs=round(b/1024/1024,2) | addcoltotals MBs labelfield=h label="TOTAL MB's USED:" | rename pool as "License Pool" host as "Splunk Host" splunk_server as "Splunk Server" h as Client idx as Index st as SourceType s as Source MBs as "MB's Used" | fields "License Pool" "Splunk Host" "Splunk Server" Client Index SourceType Source "MB's Used" | sort - "MB's Used"</query>
+          <earliest>@d</earliest>
+          <latest>now</latest>
+          <sampleRatio>1</sampleRatio>
+        </search>
+        <option name="count">20</option>
+        <option name="dataOverlayMode">none</option>
+        <option name="drilldown">cell</option>
+        <option name="rowNumbers">false</option>
+        <option name="totalsRow">false</option>
+        <option name="wrap">true</option>
+        <format type="color" field="Client">
+          <colorPalette type="map">{"TOTAL MB's USED:":#604E8F}</colorPalette>
+        </format>
+      </table>
+    </panel>
+  </row>
+</form>

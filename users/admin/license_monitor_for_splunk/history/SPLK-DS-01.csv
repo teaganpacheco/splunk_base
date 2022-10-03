@@ -1,0 +1,22 @@
+sid,search,"splunk_server","_time","is_realtime",provenance,"api_index_et","api_index_lt","event_count","exec_time","result_count","savedsearch_name","scan_count",status,"total_run_time","api_et","api_lt","search_et","search_lt","__mv_sid","__mv_search","__mv_splunk_server","__mv__time","__mv_is_realtime","__mv_provenance","__mv_api_index_et","__mv_api_index_lt","__mv_event_count","__mv_exec_time","__mv_result_count","__mv_savedsearch_name","__mv_scan_count","__mv_status","__mv_total_run_time","__mv_api_et","__mv_api_lt","__mv_search_et","__mv_search_lt"
+"admin__admin_bGljZW5zZV9tb25pdG9yX2Zvcl9zcGx1bms__search2_1664829773.2","| `operational_license_master_connection` ""/services/licenser/slaves"" 
+          | table label warning_count active_pool_ids
+          | rename label AS ""Splunk Server"",  warning_count AS Warnings,  active_pool_ids AS ""Active Pool ID""","SPLK-DS-01","1664829773.222939",0,"UI:Dashboard:license_overview",0,0,0,1664829773,1,search2,0,completed,"0.092",,,,,,,,,,,,,,,,,,,,,,,
+"admin__admin_bGljZW5zZV9tb25pdG9yX2Zvcl9zcGx1bms__search1_1664829773.3","| `operational_license_master_connection` ""/services/licenser/licenses""
+| eval creation_time=strftime(creation_time,""%d-%m-%Y""), days_until_expiration=round((expiration_time-now())/86400) , expiration=strftime(expiration_time,""%d-%m-%Y"") ,quota = ('quota'/1024/1024/1024), Volume = quota+"" GB"", is_unlimited =if('is_unlimited'==0,""no"",""yes"")
+| fields  creation_time days_until_expiration expiration expiration_time Volume stack_id status subgroup_id type window_period max_violations label is_unlimited group_id features eai:acl.perms.write eai:acl.perms.read quota
+| eval renewal_period = case(days_until_expiration<14, ""critical"", days_until_expiration<30, ""warning"", 1=1, ""Ok"")
+| eval quota1 = case(quota>1000, quota/1024) , quota1 = quota1+"" TB""
+| eval quota2 = case(quota<1, quota*1024) , quota2 = quota2+"" MB""
+| eval Volume = coalesce(quota1,quota2,Volume)
+| fields group_id label Volume creation_time expiration renewal_period days_until_expiration is_unlimited   
+| rename creation_time AS ""Purchase"", expiration AS ""Expiration"", renewal_period AS ""Renewal"", days_until_expiration AS ""Remaining Days"", is_unlimited AS Unlimited,  group_id AS ""License Type"" , features AS ""Available Features"" , label AS License","SPLK-DS-01","1664829773.225169",0,"UI:Dashboard:license_overview",0,0,0,1664829773,2,search1,0,completed,"0.094","1664694000.000000000","1664829773.000000000","1664694000.000000000","1664829773.000000000",,,,,,,,,,,,,,,,,,,
+"admin__admin_bGljZW5zZV9tb25pdG9yX2Zvcl9zcGx1bms__search3_1664829773.4","| `operational_license_master_connection` ""/services/licenser/pools"" 
+| search stack_id=enterprise
+| eval effective_quota=effective_quota/1024/1024/1024, usage=round(used_bytes/1024/1024/1024,2) , percentage_used=round(((100/effective_quota)*usage),2)
+| eval quota0 = case(effective_quota>0 AND effective_quota<1000, effective_quota) , quota0 = quota0+"" GB"", usage0 = case(effective_quota>0 AND effective_quota<1000, usage+"" GB"")
+| eval quota1 = case(effective_quota>1000, effective_quota/1024) , quota1 = quota1+"" TB"" , usage1 = case(effective_quota>1000, usage+"" TB"" )              
+| eval quota2 = case(effective_quota<1, effective_quota*1024) , quota2 = quota2+"" MB"", usage2 = case(effective_quota<1, usage+"" MB"")
+| eval Volume = coalesce(quota1,quota2,quota0), usage = coalesce(usage2,usage0,usage1), percentage_used = percentage_used+"" %""
+| fields description quota Volume usage  percentage_used
+| rename description AS ""License Pool"", quota AS Assignment, usage AS ""Consumed amount"",  percentage_used AS ""Percentage rate""","SPLK-DS-01","1664829773.226934",0,"UI:Dashboard:license_overview",0,0,0,1664829773,0,search3,0,completed,"0.094",,,,,,,,,,,,,,,,,,,,,,,

@@ -1,0 +1,264 @@
+<form version="1.1" theme="dark">
+  <label>calculated by sourcetype</label>
+  <fieldset submitButton="false" autoRun="true"></fieldset>
+  <row>
+    <panel>
+      <input type="radio" token="time_tok" searchWhenChanged="true">
+        <label></label>
+        <choice value="earliest=-7d@d latest=-0d@d">based on last 7 days</choice>
+        <choice value="earliest=-14d@d latest=-0d@d">based on last 14 days</choice>
+        <choice value="earliest=-30d@d latest=-0d@d">based on last 30 days</choice>
+        <choice value="earliest=-60d@d latest=-0d@d">based on last 60 days</choice>
+        <choice value="earliest=-90d@d latest=-0d@d">based on last 90 days</choice>
+        <default>earliest=-30d@d latest=-0d@d</default>
+      </input>
+      <input type="multiselect" token="sourcetype_tok" searchWhenChanged="true">
+        <label>indexed sourcetype</label>
+        <choice value="-">select sourcetype</choice>
+        <prefix>(</prefix>
+        <suffix>)</suffix>
+        <valuePrefix>orig_sourcetype="</valuePrefix>
+        <valueSuffix>"</valueSuffix>
+        <delimiter> OR </delimiter>
+        <fieldForLabel>orig_sourcetype</fieldForLabel>
+        <fieldForValue>orig_sourcetype</fieldForValue>
+        <search>
+          <query>`index_assignment_notable_license_management` purpose="*Volume Calculation*" $time_tok$
+            | stats count by orig_sourcetype</query>
+        </search>
+        <default>-</default>
+      </input>
+      <input type="text" token="wildcard_sourcetype_tok" searchWhenChanged="true">
+        <label>wildcard for indexed sourcetype</label>
+        <default>e.g. bluecue</default>
+        <prefix>"*</prefix>
+        <suffix>*"</suffix>
+      </input>
+      <input type="text" token="ilv_tok" searchWhenChanged="true">
+        <label>Internal charge rate per $/GB</label>
+        <default>150</default>
+      </input>
+      <html>
+       <style>
+           .dashboard-row .dashboard-panel h2 {
+             font-size: 30px !important;
+           }
+           
+           .dashboard-row .dashboard-panel p {
+             font-size: 25px !important;
+             
+           }
+           
+           .dashboard-row .dashboard-panel h3 {
+             font-size: 20px !important;
+             
+           }
+           
+           .table th, .table td {
+           text-align: right!important;
+           }
+
+           .table th {
+           font-size: 18px !important;
+           
+           }
+
+           .table td {
+           font-size: 24px !important;
+           color:#63ace5;
+           tr:hover {background-color:#f5f5f5;
+           }
+           
+           .table th, .table td {
+           text-align: right!important;
+           }
+           
+           
+           .table td:nth-child(5) {
+           text-align: right!important;
+           }
+           
+           .table td:nth-child(4) {
+           text-align: right!important;
+           }
+           
+           .table td:nth-child(3) {
+           text-align: right!important;
+           }
+           
+           .table td:first-child {
+           text-align: right!important;
+           }
+           
+           .table td:last-child {
+           text-align: right!important;
+           }
+           
+
+         </style>
+    
+   
+            <h2 align="center" style="color:#63ace5;"> License Usage and Calculation </h2>
+         <br/>
+         <br/>
+      
+       </html>
+    </panel>
+  </row>
+  <row>
+    <panel>
+      <html>
+        
+      <p align="center" style="color:#63ace5;"> estimated costs based on internal charge rate </p>
+       
+    </html>
+      <single>
+        <search>
+          <query>`index_assignment_notable_license_management` purpose="*Volume Calculation*"  ($sourcetype_tok$ OR $wildcard_sourcetype_tok$) $time_tok$
+    | bin span=1d@d _time
+    | stats  sum(Byte) as Byte
+    | eval totalGB = round(Byte/1024/1024/1024,2)
+    | eval Purchase = "$ilv_tok$"
+    | eval purchase_cost = round((totalGB * Purchase),2)
+    | table purchase_cost</query>
+          <earliest>-7d@h</earliest>
+          <latest>now</latest>
+          <sampleRatio>1</sampleRatio>
+        </search>
+        <option name="colorBy">value</option>
+        <option name="colorMode">none</option>
+        <option name="drilldown">none</option>
+        <option name="numberPrecision">0</option>
+        <option name="rangeColors">["0x53a051","0x0877a6","0xf8be34","0xf1813f","0xdc4e41"]</option>
+        <option name="rangeValues">[0,30,70,100]</option>
+        <option name="refresh.display">progressbar</option>
+        <option name="showSparkline">1</option>
+        <option name="showTrendIndicator">1</option>
+        <option name="trellis.enabled">0</option>
+        <option name="trellis.scales.shared">1</option>
+        <option name="trellis.size">medium</option>
+        <option name="trendColorInterpretation">standard</option>
+        <option name="trendDisplayMode">absolute</option>
+        <option name="unit">$</option>
+        <option name="unitPosition">before</option>
+        <option name="useColors">0</option>
+        <option name="useThousandSeparators">1</option>
+      </single>
+    </panel>
+    <panel>
+      <html>
+        
+      <p align="center" style="color:#63ace5;"> consumed and indexed data volume </p>
+       
+    </html>
+      <single>
+        <search>
+          <query>`index_assignment_notable_license_management` purpose="*Volume Calculation*"  ($sourcetype_tok$ OR $wildcard_sourcetype_tok$) $time_tok$
+            | stats  sum(Byte) as Byte
+            | eval totalGB = round(Byte/1024/1024/1024,2)
+            | table totalGB</query>
+          <earliest>-7d@h</earliest>
+          <latest>now</latest>
+          <sampleRatio>1</sampleRatio>
+        </search>
+        <option name="colorBy">value</option>
+        <option name="colorMode">none</option>
+        <option name="drilldown">none</option>
+        <option name="numberPrecision">0.00</option>
+        <option name="rangeColors">["0x53a051","0x0877a6","0xf8be34","0xf1813f","0xdc4e41"]</option>
+        <option name="rangeValues">[0,30,70,100]</option>
+        <option name="refresh.display">progressbar</option>
+        <option name="showSparkline">1</option>
+        <option name="showTrendIndicator">1</option>
+        <option name="trellis.enabled">0</option>
+        <option name="trellis.scales.shared">1</option>
+        <option name="trellis.size">medium</option>
+        <option name="trendColorInterpretation">standard</option>
+        <option name="trendDisplayMode">absolute</option>
+        <option name="unit">GB</option>
+        <option name="unitPosition">after</option>
+        <option name="useColors">0</option>
+        <option name="useThousandSeparators">1</option>
+      </single>
+    </panel>
+    <panel>
+      <html>
+        
+      <p align="center" style="color:#63ace5;"> sent and indexed Events </p>
+       
+    </html>
+      <single>
+        <search>
+          <query>`index_assignment_notable_license_management` purpose="*Volume Calculation*" ($sourcetype_tok$ OR $wildcard_sourcetype_tok$) $time_tok$
+            | stats  sum(Events) as Events
+            
+            | table Events</query>
+          <earliest>-7d@h</earliest>
+          <latest>now</latest>
+          <sampleRatio>1</sampleRatio>
+        </search>
+        <option name="colorBy">value</option>
+        <option name="colorMode">none</option>
+        <option name="drilldown">none</option>
+        <option name="numberPrecision">0</option>
+        <option name="rangeColors">["0x53a051","0x0877a6","0xf8be34","0xf1813f","0xdc4e41"]</option>
+        <option name="rangeValues">[0,30,70,100]</option>
+        <option name="refresh.display">progressbar</option>
+        <option name="showSparkline">1</option>
+        <option name="showTrendIndicator">1</option>
+        <option name="trellis.enabled">0</option>
+        <option name="trellis.scales.shared">1</option>
+        <option name="trellis.size">medium</option>
+        <option name="trendColorInterpretation">standard</option>
+        <option name="trendDisplayMode">absolute</option>
+        <option name="unitPosition">before</option>
+        <option name="useColors">0</option>
+        <option name="useThousandSeparators">1</option>
+      </single>
+    </panel>
+  </row>
+  <row>
+    <panel>
+      <html>
+         <br/>
+         <br/>
+      <p align="center" style="color:#63ace5;"> Distribution to individual Indexes  </p>
+        <br/>
+         <br/>
+    </html>
+      <table>
+        <search>
+          <query>`index_assignment_notable_license_management` purpose="*Volume Calculation*" ($sourcetype_tok$ OR $wildcard_sourcetype_tok$) $time_tok$
+            | bin span=1d@d _time 
+            | stats  sum(Byte) AS Byte sum(Events) AS Events  by _time orig_index
+            | stats sparkline(sum(Events),1d) AS "Events/day" sum(Byte) AS totalBytes  avg(Byte) AS avgytes by orig_index
+            
+            | eval averageGB = round(avgytes/1024/1024/1024,2)
+            | eval totalGB   = round(totalBytes/1024/1024/1024,2)
+            | eval Purchase = "$ilv_tok$"
+            | eval "internal costs $$" = round((totalGB * Purchase),2)
+            | eval "average daily internal costs $$" = round((averageGB * Purchase),2)
+            | fields orig_index "Events/day" totalGB "internal costs $$"   averageGB   "average daily internal costs $$" averageGB
+            | rename orig_index AS Index , totalGB AS "total indexed GB", averageGB AS "average daily GB"</query>
+          <earliest>@w0</earliest>
+          <latest>now</latest>
+          <sampleRatio>1</sampleRatio>
+        </search>
+        <option name="count">20</option>
+        <option name="dataOverlayMode">none</option>
+        <option name="drilldown">none</option>
+        <option name="percentagesRow">false</option>
+        <option name="refresh.display">progressbar</option>
+        <option name="rowNumbers">false</option>
+        <option name="totalsRow">false</option>
+        <option name="wrap">true</option>
+        <format field="Events/day" type="sparkline">
+          <option name="type">bar</option>
+          <option name="height">20</option>
+          <option name="barColor">#DB2C2C</option>
+          <option name="barWidth">5px</option>
+        </format>
+      </table>
+    </panel>
+  </row>
+</form>

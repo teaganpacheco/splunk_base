@@ -1,0 +1,421 @@
+<form version="1.1" theme="dark">
+  <label>License Estimated Usage Calculation</label>
+  <search id="base001">
+    <query>
+    | search `index_assignment_notable_license_management` purpose="*Volume Calculation*" $time_tok$
+    | bin span=1d@d _time
+    | stats  sum(Byte) as Byte by _time
+    | eval totalGB = round(Byte/1024/1024/1024,2)
+    | eval Purchase = $purchased_tok$
+    | eval licenseModel_indexing = case(totalGB&gt;0.0 AND totalGB&lt;0.9, "1800", totalGB&gt;1.0 AND totalGB&lt;5.0, "1500", totalGB&gt;=5.0 AND totalGB&lt;10.0, "1200", totalGB&gt;=10.0 AND totalGB&lt;20.0, "1000", totalGB&gt;=20.0 AND totalGB&lt;50.0, "900", totalGB&gt;=50.0 AND totalGB&lt;100.0, "760", totalGB&gt;99 , "600")
+    | eval licenseModel_purchase = case(Purchase=1, "1800", Purchase&gt;1 AND Purchase&lt;5, "1500", Purchase&gt;=5 AND Purchase&lt;10 , "1200", Purchase&gt;=10 AND Purchase&lt;20, "1000", Purchase&gt;=20 AND Purchase&lt;50, "900", Purchase&gt;=50 AND Purchase&lt;100, "760", Purchase&gt;=100 , "600")
+    | eval purchase_cost = round((Purchase * licenseModel_purchase),2)
+    | eval indexed_cost  = round((totalGB * licenseModel_indexing),2)
+    </query>
+  </search>
+  <search id="base002">
+    <query>
+    | search `index_assignment_notable_license_management` purpose="*Volume Calculation*" $time_tok$
+    | bin span=1d@d _time
+    | stats sum(Events) AS Events by _time
+    </query>
+  </search>
+  <fieldset submitButton="false" autoRun="true"></fieldset>
+  <row>
+    <panel>
+      <input type="radio" token="time_tok" searchWhenChanged="true">
+        <label></label>
+        <choice value="earliest=-30d@d latest=-0d@d">based on last 30 days</choice>
+        <choice value="earliest=-60d@d latest=-0d@d">based on last 60 days</choice>
+        <choice value="earliest=-90d@d latest=-0d@d">based on last 90 days</choice>
+        <default>earliest=-30d@d latest=-0d@d</default>
+      </input>
+      <input type="text" token="purchased_tok" searchWhenChanged="true">
+        <label>Purchased License Volume</label>
+        <default>50</default>
+      </input>
+      <html>
+         <style>
+           .dashboard-row .dashboard-panel h2 {
+             font-size: 30px !important;
+           }
+           
+           .dashboard-row .dashboard-panel p {
+             font-size: 25px !important;
+             
+           }
+           
+           .dashboard-row .dashboard-panel h3 {
+             font-size: 20px !important;
+             
+           }
+         </style>
+        
+            <h2 align="center" style="color:#63ace5;"> License Usage and Calculation </h2>
+         <br/>
+         <br/>
+      
+       </html>
+    </panel>
+  </row>
+  <row>
+    <panel>
+      <html>
+        
+      <p align="center" style="color:#63ace5;"> estimated splunk license costs at constant log volume ( per year ) </p>
+       
+    </html>
+      <single>
+        <search base="base001">
+          <query>
+            | eventstats perc97(indexed_cost) AS estimate
+            | eval estimate = round(estimate,0)
+            | fields estimate
+          
+          </query>
+        </search>
+        <option name="drilldown">all</option>
+        <option name="numberPrecision">0</option>
+        <option name="rangeColors">["0x53a051","0x0877a6","0xf8be34","0xf1813f","0xdc4e41"]</option>
+        <option name="refresh.display">progressbar</option>
+        <option name="showSparkline">0</option>
+        <option name="showTrendIndicator">0</option>
+        <option name="trendDisplayMode">percent</option>
+        <option name="unit">$</option>
+        <option name="unitPosition">before</option>
+        <option name="useThousandSeparators">1</option>
+      </single>
+      <chart>
+        <search base="base001">
+          <query>
+            | eventstats perc97(indexed_cost) AS estimate
+            | eval estimate = round(estimate,0)
+            | fields _time indexed_cost estimate
+            | eval Purchase = "75"</query>
+        </search>
+        <option name="charting.axisLabelsX.majorLabelStyle.overflowMode">ellipsisNone</option>
+        <option name="charting.axisLabelsX.majorLabelStyle.rotation">0</option>
+        <option name="charting.axisTitleX.visibility">collapsed</option>
+        <option name="charting.axisTitleY.text">costs per year</option>
+        <option name="charting.axisTitleY.visibility">visible</option>
+        <option name="charting.axisTitleY2.visibility">visible</option>
+        <option name="charting.axisX.abbreviation">none</option>
+        <option name="charting.axisX.scale">linear</option>
+        <option name="charting.axisY.abbreviation">none</option>
+        <option name="charting.axisY.scale">linear</option>
+        <option name="charting.axisY2.abbreviation">none</option>
+        <option name="charting.axisY2.enabled">0</option>
+        <option name="charting.axisY2.scale">inherit</option>
+        <option name="charting.chart">column</option>
+        <option name="charting.chart.bubbleMaximumSize">50</option>
+        <option name="charting.chart.bubbleMinimumSize">10</option>
+        <option name="charting.chart.bubbleSizeBy">area</option>
+        <option name="charting.chart.nullValueMode">gaps</option>
+        <option name="charting.chart.overlayFields">estimate,Purchase</option>
+        <option name="charting.chart.showDataLabels">none</option>
+        <option name="charting.chart.sliceCollapsingThreshold">0.01</option>
+        <option name="charting.chart.stackMode">default</option>
+        <option name="charting.chart.style">shiny</option>
+        <option name="charting.drilldown">none</option>
+        <option name="charting.layout.splitSeries">0</option>
+        <option name="charting.layout.splitSeries.allowIndependentYRanges">0</option>
+        <option name="charting.legend.labelStyle.overflowMode">ellipsisMiddle</option>
+        <option name="charting.legend.mode">standard</option>
+        <option name="charting.legend.placement">top</option>
+        <option name="charting.lineWidth">2</option>
+        <option name="refresh.display">progressbar</option>
+        <option name="trellis.enabled">0</option>
+        <option name="trellis.scales.shared">1</option>
+        <option name="trellis.size">medium</option>
+      </chart>
+    </panel>
+    <panel>
+      <html>
+        
+      <p align="center" style="color:#63ace5;"> estimated required license at constant log volume </p>
+       
+    </html>
+      <single>
+        <search base="base001">
+          <query>
+            | eventstats perc97(totalGB) AS estimate
+            | eval estimate = round(estimate,0)
+            | fields estimate
+            
+          </query>
+        </search>
+        <option name="drilldown">all</option>
+        <option name="numberPrecision">0</option>
+        <option name="rangeColors">["0x53a051","0x0877a6","0xf8be34","0xf1813f","0xdc4e41"]</option>
+        <option name="refresh.display">progressbar</option>
+        <option name="showSparkline">0</option>
+        <option name="showTrendIndicator">0</option>
+        <option name="trendDisplayMode">percent</option>
+        <option name="unit">GB/Day</option>
+        <option name="unitPosition">after</option>
+        <option name="useThousandSeparators">1</option>
+      </single>
+      <chart>
+        <search base="base001">
+          <query>
+    | eventstats perc97(totalGB) AS perc97_totalGB
+    | eval estimate = round(perc97_totalGB,0)
+    | fields _time totalGB estimate
+    | eval Purchase = $purchased_tok$
+          </query>
+        </search>
+        <option name="charting.axisLabelsX.majorLabelStyle.overflowMode">ellipsisNone</option>
+        <option name="charting.axisLabelsX.majorLabelStyle.rotation">0</option>
+        <option name="charting.axisTitleX.visibility">collapsed</option>
+        <option name="charting.axisTitleY.text">GB per day</option>
+        <option name="charting.axisTitleY.visibility">visible</option>
+        <option name="charting.axisTitleY2.visibility">visible</option>
+        <option name="charting.axisX.abbreviation">none</option>
+        <option name="charting.axisX.scale">linear</option>
+        <option name="charting.axisY.abbreviation">none</option>
+        <option name="charting.axisY.scale">linear</option>
+        <option name="charting.axisY2.abbreviation">none</option>
+        <option name="charting.axisY2.enabled">0</option>
+        <option name="charting.axisY2.scale">inherit</option>
+        <option name="charting.chart">column</option>
+        <option name="charting.chart.bubbleMaximumSize">50</option>
+        <option name="charting.chart.bubbleMinimumSize">10</option>
+        <option name="charting.chart.bubbleSizeBy">area</option>
+        <option name="charting.chart.nullValueMode">gaps</option>
+        <option name="charting.chart.overlayFields">estimate,Purchase</option>
+        <option name="charting.chart.showDataLabels">none</option>
+        <option name="charting.chart.sliceCollapsingThreshold">0.01</option>
+        <option name="charting.chart.stackMode">default</option>
+        <option name="charting.chart.style">shiny</option>
+        <option name="charting.drilldown">none</option>
+        <option name="charting.layout.splitSeries">0</option>
+        <option name="charting.layout.splitSeries.allowIndependentYRanges">0</option>
+        <option name="charting.legend.labelStyle.overflowMode">ellipsisMiddle</option>
+        <option name="charting.legend.mode">standard</option>
+        <option name="charting.legend.placement">top</option>
+        <option name="charting.lineWidth">2</option>
+        <option name="trellis.enabled">0</option>
+        <option name="trellis.scales.shared">1</option>
+        <option name="trellis.size">medium</option>
+      </chart>
+    </panel>
+    <panel>
+      <html>
+        
+      <p align="center" style="color:#63ace5;"> current number of events per hour  </p>
+       
+    </html>
+      <single>
+        <search>
+          <query>
+            `index_assignment_notable_license_management` purpose="*" purpose="*indexing event calculation by host per hour" $time_tok$
+            | eval host = upper(orig_host)
+            | eval _time = time
+            | chart sum(Events) AS Events over _time
+            | eventstats avg(Events) AS Average
+            | eval Average = round(Average,0)
+            | table Average
+            
+          </query>
+        </search>
+        <option name="drilldown">all</option>
+        <option name="numberPrecision">0</option>
+        <option name="rangeColors">["0x53a051","0x0877a6","0xf8be34","0xf1813f","0xdc4e41"]</option>
+        <option name="refresh.display">progressbar</option>
+        <option name="showSparkline">0</option>
+        <option name="showTrendIndicator">0</option>
+        <option name="trendDisplayMode">percent</option>
+        <option name="unitPosition">after</option>
+        <option name="useThousandSeparators">1</option>
+      </single>
+      <chart>
+        <search>
+          <query>
+            `index_assignment_notable_license_management` purpose="*" purpose="*indexing event calculation by host per hour" $time_tok$
+            | eval host = upper(orig_host)
+            | eval _time = time
+            | chart sum(Events) AS Events over _time
+            | eventstats avg(Events) AS Average max(Events) AS Maximum
+            
+          </query>
+        </search>
+        <option name="charting.axisLabelsX.majorLabelStyle.overflowMode">ellipsisNone</option>
+        <option name="charting.axisLabelsX.majorLabelStyle.rotation">0</option>
+        <option name="charting.axisTitleX.visibility">collapsed</option>
+        <option name="charting.axisTitleY.text">Events / hour</option>
+        <option name="charting.axisTitleY.visibility">visible</option>
+        <option name="charting.axisTitleY2.visibility">visible</option>
+        <option name="charting.axisX.abbreviation">none</option>
+        <option name="charting.axisX.scale">linear</option>
+        <option name="charting.axisY.abbreviation">none</option>
+        <option name="charting.axisY.scale">linear</option>
+        <option name="charting.axisY2.abbreviation">none</option>
+        <option name="charting.axisY2.enabled">0</option>
+        <option name="charting.axisY2.scale">inherit</option>
+        <option name="charting.chart">column</option>
+        <option name="charting.chart.bubbleMaximumSize">50</option>
+        <option name="charting.chart.bubbleMinimumSize">10</option>
+        <option name="charting.chart.bubbleSizeBy">area</option>
+        <option name="charting.chart.nullValueMode">gaps</option>
+        <option name="charting.chart.overlayFields">Average,Maximum</option>
+        <option name="charting.chart.showDataLabels">none</option>
+        <option name="charting.chart.sliceCollapsingThreshold">0.01</option>
+        <option name="charting.chart.stackMode">default</option>
+        <option name="charting.chart.style">shiny</option>
+        <option name="charting.drilldown">none</option>
+        <option name="charting.layout.splitSeries">0</option>
+        <option name="charting.layout.splitSeries.allowIndependentYRanges">0</option>
+        <option name="charting.legend.labelStyle.overflowMode">ellipsisMiddle</option>
+        <option name="charting.legend.mode">standard</option>
+        <option name="charting.legend.placement">top</option>
+        <option name="charting.lineWidth">2</option>
+        <option name="trellis.enabled">0</option>
+        <option name="trellis.scales.shared">1</option>
+        <option name="trellis.size">medium</option>
+      </chart>
+    </panel>
+  </row>
+  <row>
+    <panel>
+      <html>
+        
+         <br/>
+         <br/>
+   
+            <h2 align="center" style="color:#63ace5;"> License usage and Measurement </h2>
+            
+         <br/>
+         <br/>
+      
+       </html>
+    </panel>
+  </row>
+  <row>
+    <panel>
+      <html>
+        
+      <p align="center" style="color:#63ace5;"> Number of Indexes </p>
+       
+    </html>
+      <single>
+        <search>
+          <query>
+          | search `index_assignment_notable_license_management` purpose="*Volume Calculation*" $time_tok$
+          | stats dc(orig_index) AS orig_index
+          </query>
+        </search>
+        <option name="drilldown">none</option>
+        <option name="height">121</option>
+        <option name="numberPrecision">0</option>
+        <option name="rangeColors">["0x53a051","0x0877a6","0xf8be34","0xf1813f","0xdc4e41"]</option>
+        <option name="refresh.display">progressbar</option>
+        <option name="showSparkline">0</option>
+        <option name="showTrendIndicator">1</option>
+        <option name="trendDisplayMode">percent</option>
+        <option name="unitPosition">before</option>
+        <option name="useThousandSeparators">1</option>
+      </single>
+    </panel>
+    <panel>
+      <html>
+        
+      <p align="center" style="color:#63ace5;"> Number of indexed Hosts </p>
+       
+    </html>
+      <single>
+        <search>
+          <query>
+             | search `index_assignment_notable_license_management` purpose="*Volume Calculation*" $time_tok$
+             | stats dc(orig_host) AS host
+          </query>
+        </search>
+        <option name="drilldown">none</option>
+        <option name="height">112</option>
+        <option name="numberPrecision">0</option>
+        <option name="rangeColors">["0x53a051","0x0877a6","0xf8be34","0xf1813f","0xdc4e41"]</option>
+        <option name="refresh.display">progressbar</option>
+        <option name="showSparkline">0</option>
+        <option name="showTrendIndicator">1</option>
+        <option name="trendDisplayMode">percent</option>
+        <option name="unitPosition">before</option>
+        <option name="useThousandSeparators">1</option>
+      </single>
+    </panel>
+    <panel>
+      <html>
+        
+      <p align="center" style="color:#63ace5;"> Number of indexed Sources </p>
+       
+    </html>
+      <single>
+        <search>
+          <query>
+             | search `index_assignment_notable_license_management` purpose="*Volume Calculation*" $time_tok$
+             | stats dc(orig_source) AS source</query>
+        </search>
+        <option name="drilldown">none</option>
+        <option name="height">121</option>
+        <option name="numberPrecision">0</option>
+        <option name="rangeColors">["0x53a051","0x0877a6","0xf8be34","0xf1813f","0xdc4e41"]</option>
+        <option name="refresh.display">progressbar</option>
+        <option name="showSparkline">0</option>
+        <option name="showTrendIndicator">1</option>
+        <option name="trendDisplayMode">percent</option>
+        <option name="unitPosition">before</option>
+        <option name="useThousandSeparators">1</option>
+      </single>
+    </panel>
+    <panel>
+      <html>
+        
+      <p align="center" style="color:#63ace5;"> Number of indexed Sourcetypes </p>
+       
+    </html>
+      <single>
+        <search>
+          <query>
+             | search `index_assignment_notable_license_management` purpose="*Volume Calculation*" $time_tok$
+             | stats dc(orig_sourcetype) AS sourcetype</query>
+        </search>
+        <option name="drilldown">none</option>
+        <option name="height">121</option>
+        <option name="numberPrecision">0</option>
+        <option name="rangeColors">["0x53a051","0x0877a6","0xf8be34","0xf1813f","0xdc4e41"]</option>
+        <option name="refresh.display">progressbar</option>
+        <option name="showSparkline">0</option>
+        <option name="showTrendIndicator">1</option>
+        <option name="trendDisplayMode">percent</option>
+        <option name="unitPosition">before</option>
+        <option name="useThousandSeparators">1</option>
+      </single>
+    </panel>
+    <panel>
+      <html>
+        
+      <p align="center" style="color:#63ace5;"> Average Events per Day </p>
+       
+    </html>
+      <single>
+        <search>
+          <query>
+            
+            | search `index_assignment_notable_license_management` purpose="*Volume Calculation*" $time_tok$
+            | bin span=1d@d _time
+            | stats sum(Events) AS Events by _time
+            | stats avg(Events) AS Events
+            | eval Events = round(Events,0)</query>
+        </search>
+        <option name="drilldown">none</option>
+        <option name="height">121</option>
+        <option name="numberPrecision">0</option>
+        <option name="rangeColors">["0x53a051","0x0877a6","0xf8be34","0xf1813f","0xdc4e41"]</option>
+        <option name="refresh.display">progressbar</option>
+        <option name="showSparkline">0</option>
+        <option name="showTrendIndicator">1</option>
+        <option name="trendDisplayMode">percent</option>
+        <option name="unitPosition">before</option>
+        <option name="useThousandSeparators">1</option>
+      </single>
+    </panel>
+  </row>
+</form>

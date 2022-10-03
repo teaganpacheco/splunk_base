@@ -1,0 +1,121 @@
+<view template="dashboard.html">
+  <label>Daily License Usage</label>
+  <module name="AccountBar" layoutPanel="appHeader"/>
+  <module name="AppBar" layoutPanel="navigationHeader"/>
+  <module name="TitleBar" layoutPanel="viewHeader">
+    <param name="actionsMenuFilter">dashboard</param>
+  </module>
+
+<!--  <module name="StaticContentSample" layoutPanel="panel_row1_col1">
+    <param name="text">
+        <![CDATA[<p>Total Predicted License Usage for the day. </p>
+        <p>This dashboard shows expected license usage for the day. This is calculated via the license used from the begining of the day till now, and a statistical approximation of how much more data will be indexed until the end of the night.</p>]]>     
+    </param>
+  </module>
+-->
+
+
+  <module name="HiddenSavedSearch" layoutPanel="panel_row1_col1_grp1" autoRun="True">
+    <param name="savedSearch">Genti License Usage</param>
+
+  <module name="StaticContentSample" layoutPanel="panel_row1_col1_grp1">
+    <param name="text">
+                        <![CDATA[
+                                <div id="totalLicenseUsage" class="panelHeader">
+                                        <h1>Daily license usage (GB)</h1>
+                                        <p>Predicted total license usage for the entire day<br>
+					   Red = Splunk will be in license violation</p>
+                                </div>
+                        ]]>
+    </param>
+  </module>
+
+  <module name="HiddenPostProcess" layoutPanel="panel_row1_col1_grp1">
+    <param name="search">gauge "Predicted License Usage For Today" 0 SUBST_TOTAL_LICENSE_QUOTA</param>
+    <module name="HiddenChartFormatter">
+      <param name="chart">radialGauge</param>
+      <module name="FlashChart">
+      	<param name="height">300px</param>
+      </module>
+    </module>
+  </module>
+
+
+  <module name="StaticContentSample" layoutPanel="panel_row2_col1_grp1">
+    <param name="text">
+                            <![CDATA[
+                                <div id="currentUsage" class="panelHeader">
+                                        <h1>Current license usage (GB)</h1>
+                                        <p> </p>
+                                </div>
+                        ]]>
+    </param>
+  </module>
+
+
+  <module name="HiddenPostProcess" layoutPanel="panel_row2_col1_grp1">
+    <param name="search">gauge "Data index since midnight" 0 SUBST_LICENSE_QUOTA</param>
+    <module name="HiddenChartFormatter">
+      <param name="chart">fillerGauge</param>
+        <module name="FlashChart">
+          <param name="width">100%</param>
+          <param name="height">200px</param>
+        </module>
+    </module>
+  </module>
+
+
+  <module name="StaticContentSample" layoutPanel="panel_row2_col2_grp1">
+    <param name="text">
+                        <![CDATA[
+                                <div id="predictedThroughput" class="panelHeader">
+                                        <h1>Approximate Current Throughput (KB)</h1>
+                                        <p>Based on 76'th percentile</p>
+                                </div>
+                        ]]>
+    </param>
+  </module>
+
+  <module name="HiddenPostProcess" layoutPanel="panel_row2_col2_grp1">
+    <param name="search">gauge CKB 0 SUBST_CURRENT_THRUPUT</param>
+    <module name="HiddenChartFormatter">
+      <param name="chart">markerGauge</param>
+      <param name="charting.chart.orientation">x</param>
+        <module name="FlashChart">
+          <param name="width">85%</param>
+          <param name="height">200px</param>
+        </module>
+    </module>
+  </module>
+
+
+
+
+  <module name="StaticContentSample" layoutPanel="panel_row2_col3_grp1">
+    <param name="text">
+                        <![CDATA[
+                                <div id="prediatedUsage" class="panelHeader">
+                                        <h1>Predicted license usage (GB)</h1>
+                                        <p>Based on current throughput</p>
+                                </div>
+                        ]]>
+    </param>
+  </module>
+
+  <module name="HiddenPostProcess" layoutPanel="panel_row2_col3_grp1">
+    <param name="search">gauge "Predicted Volume Till Midnight" 0 SUBST_PRED_LICENSE_QUOTA</param>
+    <module name="HiddenChartFormatter">
+      <param name="chart">fillerGauge</param>
+        <module name="FlashChart">
+          <param name="width">100%</param>
+          <param name="height">200px</param>
+        </module>
+    </module>
+  </module>
+
+
+
+
+</module>
+
+</view>

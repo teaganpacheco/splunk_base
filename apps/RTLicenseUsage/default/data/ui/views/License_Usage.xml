@@ -1,0 +1,3 @@
+<view template="dashboard.html">
+  <label>Daily License Usage</label>
+</view>

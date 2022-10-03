@@ -1,0 +1,122 @@
+<form version="1.1">
+  <label>Incoming Data Overview</label>
+  <fieldset submitButton="false"></fieldset>
+  <row>
+    <panel>
+      <title>Indexes Overview</title>
+      <input type="multiselect" token="indexer1">
+        <label>Indexer</label>
+        <choice value="*">All</choice>
+        <default>*</default>
+        <valuePrefix>splunk_server="</valuePrefix>
+        <valueSuffix>"</valueSuffix>
+        <delimiter> OR </delimiter>
+        <fieldForLabel>splunk_server</fieldForLabel>
+        <fieldForValue>splunk_server</fieldForValue>
+        <search>
+          <query>| dbinspect index=*| fields splunk_server | dedup splunk_server</query>
+        </search>
+      </input>
+      <input type="multiselect" token="index2">
+        <label>Index</label>
+        <choice value="*">All</choice>
+        <default>*</default>
+        <valuePrefix>index="</valuePrefix>
+        <valueSuffix>"</valueSuffix>
+        <delimiter> OR </delimiter>
+        <fieldForLabel>index</fieldForLabel>
+        <fieldForValue>index</fieldForValue>
+        <search>
+          <query>|inputlookup usedIndexes.csv</query>
+        </search>
+      </input>
+      <table>
+        <search>
+          <query>| dbinspect index=* | regex index="^[^_]" 
+| search $indexer1$ $index2$
+| stats sum(rawSize) as rawSize sum(sizeOnDiskMB) as sizeOnDiskMB sum(eventCount) as eventCount by index splunk_server 
+| eval rawSize = (rawSize/1024/1024), compressionRate=((sizeOnDiskMB-rawSize)/rawSize)*100 
+| table splunk_server index eventCount rawSize sizeOnDiskMB compressionRate 
+| rename splunk_server as Indexer index as Index eventCount as "Event Count" rawSize as "Raw Size in MB" sizeOnDiskMB as "Size on Disk in MB" compressionRate as "Compression Rate"</query>
+          <earliest>0</earliest>
+          <sampleRatio>1</sampleRatio>
+        </search>
+        <option name="count">20</option>
+        <option name="dataOverlayMode">none</option>
+        <option name="drilldown">cell</option>
+        <option name="percentagesRow">false</option>
+        <option name="rowNumbers">false</option>
+        <option name="totalsRow">false</option>
+        <option name="wrap">true</option>
+        <format type="number" field="rawSize">
+          <option name="unit">MB</option>
+        </format>
+        <format type="number" field="sizeOnDiskMB">
+          <option name="unit">MB</option>
+        </format>
+        <format type="number" field="compressionRate">
+          <option name="precision">1</option>
+          <option name="unit">%</option>
+        </format>
+        <format type="number" field="Raw Size in MB">
+          <option name="precision">1</option>
+          <option name="unit">MB</option>
+        </format>
+        <format type="number" field="Size on Disk in MB">
+          <option name="precision">1</option>
+          <option name="unit">MB</option>
+        </format>
+        <format type="number" field="Compresson Rate">
+          <option name="precision">1</option>
+          <option name="unit">%</option>
+        </format>
+        <format type="color" field="Compresson Rate">
+          <colorPalette type="list">[#65A637,#F7BC38,#D93F3C]</colorPalette>
+          <scale type="threshold">-25,0</scale>
+        </format>
+        <format type="number" field="Compression Rate">
+          <option name="precision">1</option>
+          <option name="unit">%</option>
+        </format>
+        <format type="color" field="Compression Rate">
+          <colorPalette type="list">[#65A637,#F7BC38,#D93F3C]</colorPalette>
+          <scale type="threshold">-25,0</scale>
+        </format>
+        <format type="number" field="Event Count">
+          <option name="precision">0</option>
+        </format>
+      </table>
+    </panel>
+    <panel>
+      <title>Incoming Source Types</title>
+      <input type="multiselect" token="index1" searchWhenChanged="true">
+        <label>Index</label>
+        <choice value="*">All</choice>
+        <initialValue>*</initialValue>
+        <valuePrefix>index="</valuePrefix>
+        <valueSuffix>"</valueSuffix>
+        <delimiter> OR </delimiter>
+        <fieldForLabel>index</fieldForLabel>
+        <fieldForValue>index</fieldForValue>
+        <search>
+          <query>|inputlookup usedIndexes.csv</query>
+        </search>
+      </input>
+      <table>
+        <search>
+          <query>| metadata type=sourcetypes $index1$ | fields - type recentTime| rename totalCount as Count firstTime as "First Event" lastTime as "Last Event"  | fieldformat Count=tostring(Count, "commas") | fieldformat "First Event"=strftime('First Event', "%c") | fieldformat "Last Event"=strftime('Last Event', "%c") | table sourcetype "First Event" "Last Event" Count | sort limit=0 sourcetype | rename sourcetype as "Source Type", Count as "Event Count"</query>
+          <earliest>$earliest$</earliest>
+          <latest>$latest$</latest>
+          <sampleRatio>1</sampleRatio>
+        </search>
+        <option name="count">20</option>
+        <option name="dataOverlayMode">none</option>
+        <option name="drilldown">cell</option>
+        <option name="percentagesRow">false</option>
+        <option name="rowNumbers">false</option>
+        <option name="totalsRow">false</option>
+        <option name="wrap">true</option>
+      </table>
+    </panel>
+  </row>
+</form>
